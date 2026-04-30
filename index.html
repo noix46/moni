@@ -280,6 +280,15 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);min-height:100vh;overf
 
 /* scrollbar */
 ::-webkit-scrollbar{width:0;background:transparent}
+
+/* ── PERIOD FILTER ── */
+.period-bar{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;margin-bottom:16px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.period-bar::-webkit-scrollbar{display:none}
+.period-btn{flex-shrink:0;padding:7px 14px;font-size:12px;font-weight:600;border:1px solid rgba(255,255,255,0.1);border-radius:20px;background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.45);cursor:pointer;font-family:'Outfit',sans-serif;transition:all .2s;white-space:nowrap}
+.period-btn.on{background:linear-gradient(135deg,rgba(168,85,247,0.6),rgba(99,102,241,0.6));border-color:rgba(168,85,247,0.5);color:#fff;box-shadow:0 2px 12px rgba(168,85,247,0.3)}
+.period-btn:active{opacity:.8}
+.period-title{font-size:13px;color:rgba(255,255,255,0.5);margin-bottom:14px;text-align:center}
+
 </style>
 </head>
 <body>
@@ -441,8 +450,31 @@ const UK='wyz_url',SK='wyz_sess';
 let URL_='',userId='',userName='',txs=[],pc=null,bc=null,regPin='',regPin2='',regStep=1,loginPin='';
 
 const CATS={
-  expense:{'Makanan':{ic:'🍜',col:'#f87171'},'Transportasi':{ic:'🚗',col:'#fb923c'},'Belanja':{ic:'🛍️',col:'#c084fc'},'Hiburan':{ic:'🎮',col:'#60a5fa'},'Kesehatan':{ic:'💊',col:'#4ade80'},'Tagihan':{ic:'📄',col:'#facc15'},'Lainnya':{ic:'📦',col:'#94a3b8'}},
-  income:{'Gaji':{ic:'💼',col:'#4ade80'},'Freelance':{ic:'💻',col:'#60a5fa'},'Bisnis':{ic:'🏪',col:'#fbbf24'},'Transfer':{ic:'💸',col:'#c084fc'},'Lainnya':{ic:'✨',col:'#94a3b8'}}
+  expense:{
+    'Makanan & Minuman':{ic:'🍜',col:'#f87171'},
+    'Transportasi':{ic:'🚗',col:'#fb923c'},
+    'Belanja':{ic:'🛍️',col:'#c084fc'},
+    'Hiburan':{ic:'🎮',col:'#60a5fa'},
+    'Kesehatan':{ic:'💊',col:'#4ade80'},
+    'Tagihan & Utilitas':{ic:'📄',col:'#facc15'},
+    'Pendidikan':{ic:'📚',col:'#34d399'},
+    'Perawatan Diri':{ic:'💅',col:'#f472b6'},
+    'Rumah Tangga':{ic:'🏠',col:'#a78bfa'},
+    'Investasi & Tabungan':{ic:'📈',col:'#2dd4bf'},
+    'Sosial & Amal':{ic:'🤝',col:'#fbbf24'},
+    'Pakaian & Fashion':{ic:'👕',col:'#e879f9'},
+    'Elektronik & Gadget':{ic:'📱',col:'#38bdf8'},
+    'Olahraga':{ic:'⚽',col:'#86efac'},
+    'Lainnya':{ic:'📦',col:'#94a3b8'}
+  },
+  income:{
+    'Gaji':{ic:'💼',col:'#4ade80'},
+    'Freelance':{ic:'💻',col:'#60a5fa'},
+    'Bisnis':{ic:'🏪',col:'#fbbf24'},
+    'Investasi':{ic:'📈',col:'#2dd4bf'},
+    'Transfer':{ic:'💸',col:'#c084fc'},
+    'Lainnya':{ic:'✨',col:'#94a3b8'}
+  }
 };
 
 /* ══ ROUTING ══ */
@@ -545,7 +577,7 @@ function addMsg(from,text){
 }
 function initChat(){
   document.getElementById('ml').innerHTML='';
-  addMsg('bot',`Halo, ${userName}! ✨\n\nData kamu tersimpan di Google Sheets & terlindungi kode kunci.\n\nCara input transaksi:\n• "beli makan siang 25rb"\n• "gaji masuk 5jt"\n• "bayar listrik 150rb"\n• "grab ke kantor 18rb"`);
+  addMsg('bot',`Halo, ${userName}! ✨\n\nData kamu tersimpan di Google Sheets & terlindungi kode kunci.\n\nCara input transaksi:\n• \"beli ayam goreng 25rb\" → 🍜 Makanan\n• \"bensin 50rb kemarin\" → 🚗 Transportasi\n• \"bayar listrik 150rb\" → 📄 Tagihan\n• \"beli obat di apotek 30rb\" → 💊 Kesehatan\n• \"les piano anak 200rb\" → 📚 Pendidikan\n• \"potong rambut 50rb\" → 💅 Perawatan Diri\n• \"sedekah 100rb\" → 🤝 Sosial & Amal\n\nKategori terdeteksi otomatis. Tanpa tanggal = hari ini.`);
 }
 
 /* ══ PARSER ══ */
@@ -560,16 +592,96 @@ function parseAmt(t){
 function detectType(t){t=t.toLowerCase();for(const w of['terima','dapat','masuk','gaji','bayaran','honor','bonus','untung','jual','pemasukan','dapet','nerima'])if(t.includes(w))return'income';return'expense';}
 function detectCat(t,tp){
   t=t.toLowerCase();
-  if(tp==='income'){if(/gaji|salary/.test(t))return'Gaji';if(/freelance|project|klien/.test(t))return'Freelance';if(/bisnis|jualan|jual/.test(t))return'Bisnis';if(/transfer|kirim/.test(t))return'Transfer';return'Lainnya';}
-  if(/makan|minum|kopi|nasi|ayam|bakso|mie|sate|pizza|burger|cafe|warung|jajan|snack|boba|sushi|resto|indomie/.test(t))return'Makanan';
-  if(/bensin|parkir|ojek|gojek|grab|taxi|bus|angkot|kereta|tol|bbm|motor|mobil/.test(t))return'Transportasi';
-  if(/baju|sepatu|tas|belanja|shopee|tokopedia|lazada|toko|market/.test(t))return'Belanja';
-  if(/game|nonton|film|bioskop|netflix|spotify|youtube|hiburan/.test(t))return'Hiburan';
-  if(/obat|dokter|klinik|apotek|vitamin/.test(t))return'Kesehatan';
-  if(/listrik|air|internet|wifi|pulsa|token|tagihan|iuran|sewa/.test(t))return'Tagihan';
+  if(tp==='income'){
+    if(/gaji|salary|upah|thr|rapel/.test(t))return'Gaji';
+    if(/freelance|project|klien|client|jasa|desain|design|foto|nulis|coding|ngoding/.test(t))return'Freelance';
+    if(/bisnis|jualan|jual|dagang|omset|laba|untung|toko|warung|olshop/.test(t))return'Bisnis';
+    if(/dividen|saham|reksa|reksadana|bunga|deposito|imbal|return|invest/.test(t))return'Investasi';
+    if(/transfer|kirim|kiriman|kasih|dikasih|dapet|dapat|hadiah|bonus|komisi/.test(t))return'Transfer';
+    return'Lainnya';
+  }
+  // ── MAKANAN & MINUMAN ──
+  if(/makan|minum|kopi|nasi|ayam|sapi|kambing|ikan|bakso|mie|mi |soto|sate|gado|pecel|rawon|gulai|rendang|opor|semur|lodeh|tongseng|capcay|kwetiau|bihun|lontong|ketupat|bubur|porridge|pizza|burger|sandwich|hotdog|kebab|sushi|ramen|dimsum|gyoza|takoyaki|thai|pho|pasta|spageti|lasagna|steak|grill|bbq|bakar|panggang|goreng|rebus|kukus|tumis|oseng|cah|sayur|lauk|camilan|snack|keripik|kue|roti|donat|croissant|wafer|coklat|permen|es |eskrim|ice cream|gelato|boba|bubble|teh |susu|jus |juice|smoothie|minuman|drink|cafe|warung|resto|restoran|rumah makan|warteg|kantin|kedai|lesehan|catering|delivery|gofood|grabfood|shopeefood|ojol food|pesan makan|beli makan|sarapan|makan siang|makan malam|makan pagi|jajan|ngemil|santap|mcd|mcdonalds|kfc|burger king|a&w|pizza hut|domino|hoka|yoshinoya|hokben|solaria|marugame|starbucks|j.co|jco|dunkin|breadtalk|holland|indomie|pop mie|supermi|sarimi|mie sedaap|abc|indofood/.test(t))return'Makanan & Minuman';
+  // ── TRANSPORTASI ──
+  if(/bensin|premium|pertalite|pertamax|solar|bbm|bahan bakar|ngisi|isi bensin|parkir|tol|tiket tol|e-toll|kartu tol|ojek|gojek|grab|maxim|indriver|taxi|taksi|becak|bajaj|angkot|angkutan|bus |busway|transjakarta|mrt|lrt|kereta|commuter|krl|kai|damri|travel|bis |pesawat|flight|tiket|boarding|bandara|airport|pelabuhan|kapal|ferry|servis motor|servis mobil|bengkel|cuci motor|cuci mobil|ganti oli|tune up|ban |aki |sparepart|suku cadang|sim |stnk|pajak kendaraan|asuransi kendaraan|leasing motor|cicilan motor|cicilan mobil|uber|mybluebird|bluebird|goride|gocar|grabcar|grabbike/.test(t))return'Transportasi';
+  // ── TAGIHAN & UTILITAS ──
+  if(/listrik|pln|token listrik|bayar listrik|air |pdam|gas |lpg|tabung gas|isi gas|internet|wifi|indihome|firstmedia|biznet|myrepublic|telkom|speedy|pulsa|paket data|data |kuota|kartu|telkomsel|xl |axis|indosat|im3|tri |smartfren|by.u|iuran|arisan|ipl|ipkl|sewa |kontrakan|kost|kos |ngekos|cicilan rumah|kpr|pbb|pajak|bphtb|bpjs|asuransi|premi|tagihan|rekening|angsuran|kredit|pinjaman|cicilan|nyicil|bayar hutang/.test(t))return'Tagihan & Utilitas';
+  // ── KESEHATAN ──
+  if(/obat|apotek|apotik|kimia farma|guardian|century|vitamin|suplemen|supplement|dokter|dr\.|bidan|perawat|nurse|puskesmas|klinik|rumah sakit|rs |rsu |rsia|rsud|rsup|lab |laborat|cek darah|tes darah|periksa|konsultasi|imunisasi|vaksin|vaksinasi|dental|gigi|mata|kaca mata|operasi|rawat inap|rawat jalan|fisioterapi|terapi|psikolog|psikiater|beli obat|tebus obat|resep/.test(t))return'Kesehatan';
+  // ── PENDIDIKAN ──
+  if(/sekolah|spp|ukt|uang kuliah|kuliah|kampus|universitas|les |kursus|bimbel|bimbingan belajar|privat|guru |tutor|buku |buku pelajaran|alat tulis|atk|bolpen|pensil|penggaris|penghapus|tas sekolah|seragam|seragam sekolah|ujian|try out|to |wisuda|skripsi|tesis|disertasi|seminar|workshop|webinar|pelatihan|training|sertifikasi|sertifikat|duolingo|ruangguru|zenius|quipper|udemy|coursera|edx|dicoding|hackerrank/.test(t))return'Pendidikan';
+  // ── PAKAIAN & FASHION ──
+  if(/baju|kaos|kemeja|polo|jaket|sweater|hoodie|cardigan|blazer|jas |coat|celana|rok |dress|gamis|jilbab|hijab|kerudung|mukena|sarung|kain|batik|kebaya|sepatu|sandal|slipper|sendai|boots|sneaker|nike|adidas|puma|converse|vans|reebok|new balance|fila|tas |dompet|ikat pinggang|belt|topi|kupluk|beanie|aksesoris|gelang|kalung|cincin|anting|jam tangan|kacamata|sunglasses|zara|h&m|uniqlo|cotton on|pull&bear|bershka|stradivarius|mango|guess|forever21|miniso/.test(t))return'Pakaian & Fashion';
+  // ── ELEKTRONIK & GADGET ──
+  if(/hp |handphone|smartphone|iphone|samsung|xiaomi|oppo|vivo|realme|poco|oneplus|huawei|laptop|notebook|macbook|asus|lenovo|acer|dell|hp laptop|tablet|ipad|kindle|earphone|headphone|airpods|tws|speaker|bluetooth|charger|powerbank|kabel|adaptor|keyboard|mouse|monitor|printer|scanner|kamera|camera|drone|action cam|gopro|playstation|ps |xbox|nintendo|switch|gaming|ram|ssd|harddisk|flashdisk|router|modem|smart tv|led tv|kulkas|ac |mesin cuci|dispenser|blender|mixer|microwave|oven|rice cooker|magic com|setrika|vacuum|penyedot debu|kipas angin|kompor|komputer/.test(t))return'Elektronik & Gadget';
+  // ── HIBURAN ──
+  if(/game|gaming|steam|playstore|appstore|in-app|nonton|film|bioskop|cinema|cgv|cinepolis|xxi|netflix|disney|disney\+|hbo|prime video|vidio|mola|viu|wetv|iqiyi|youtube premium|spotify|joox|apple music|tidal|deezer|karaoke|konser|event|tiket event|festival|jalan-jalan|wisata|liburan|travel|hotel|penginapan|villa|airbnb|booking|traveloka|tiket\.com|pegipegi|trivago|agoda|ekspedisi|piknik|outbound|wahana|taman|kebun binatang|museum|wahana air|waterpark|batu secret zoo|dunia fantasi|dufan|trans studio|timezone|amazone|inul vizta|happy puppy|karaoke/.test(t))return'Hiburan';
+  // ── PERAWATAN DIRI ──
+  if(/sampo|shampoo|sabun|shower gel|kondisioner|conditioner|sabun muka|facial wash|toner|serum|moisturizer|sunscreen|spf|pelembab|losion|lotion|body lotion|parfum|deodoran|sikat gigi|pasta gigi|floss|mouthwash|obat kumur|pembalut|pad |kapas|cotton|tissue|wet tissue|makeup|kosmetik|lipstik|lipstick|foundation|bedak|blush|mascara|eyeliner|eyebrow|bb cream|cc cream|skincare|perawatan kulit|salon|potong rambut|cukur|creambath|hair spa|keratin|smoothing|rebonding|cat rambut|manikur|pedikur|waxing|spa |massage|pijat|refleksi|facial|treatment|perawatan wajah|wardah|emina|scarlett|skintific|somethinc|ms glow|nature republic|the ordinary|cerave|la roche/.test(t))return'Perawatan Diri';
+  // ── RUMAH TANGGA ──
+  if(/sabun cuci|deterjen|rinso|so klin|attack|molto|pewangi|softener|pengharum|pembersih|karbol|baygon|hit |obat nyamuk|kapur barus|sapu|pel |kain pel|sikat|ember|gayung|jemuran|hanger|tempat sampah|kantong plastik|plastik|tali|lem |paku|cat |pilox|ampelas|semen|bata|genteng|triplek|kayu |besi |furniture|lemari|kasur|bantal|guling|sprei|selimut|handuk|gorden|karpet|meja |kursi |sofa |rak |lampu |bola lampu|stop kontak|kabel listrik|pipa |tanaman|pot |pupuk|benih|bibit|alat masak|panci|wajan|teflon|spatula|sendok|garpu|piring|gelas|mangkok|rice cooker|talenan|pisau dapur|belanja bulanan|supermarket|alfamart|indomaret|giant|hero|carrefour|hypermart|transmart|lottemart|farmer market/.test(t))return'Rumah Tangga';
+  // ── OLAHRAGA ──
+  if(/gym|fitness|olahraga|renang|kolam renang|futsal|basket|badminton|tenis|golf|yoga|pilates|zumba|crossfit|sepatu olahraga|baju olahraga|raket|bola |dumbbell|barbel|matras|protein|whey|suplemen olahraga|member gym|iuran gym|kartu gym/.test(t))return'Olahraga';
+  // ── SOSIAL & AMAL ──
+  if(/sedekah|infak|infaq|zakat|wakaf|donasi|sumbangan|amal|sosial|panti|yatim|masjid|mushola|gereja|pura|vihara|bantuan|sumbang|kondangan|kondangin|nikahan|pernikahan|kawinan|hajatan|sunatan|khitan|syukuran|selamatan|tahlilan|yasinan|arisan|patungan|iuran warga|iuran rt|iuran rw|kas |kado|hadiah|parcel/.test(t))return'Sosial & Amal';
+  // ── INVESTASI & TABUNGAN ──
+  if(/invest|saham|reksa dana|reksadana|obligasi|sukuk|deposito|tabungan|nabung|saving|emas|logam mulia|antam|pegadaian|crypto|bitcoin|ethereum|binance|indodax|tokocrypto|p2p|lending|bibit|bareksa|ajaib|stockbit|ipot|idx|bursa/.test(t))return'Investasi & Tabungan';
   return'Lainnya';
 }
-function parseTx(raw){const amt=parseAmt(raw);if(!amt||amt<100)return null;const tp=detectType(raw),cat=detectCat(raw,tp);return{id:Date.now()+'_'+Math.random().toString(36).slice(2),type:tp,amount:amt,desc:raw.trim(),category:cat,date:new Date().toISOString()};}
+function parseDate(t){
+  const tl=t.toLowerCase();
+  const now=new Date();
+  // kemarin / kemaren
+  if(/kemarin|kemaren/.test(tl)){const d=new Date(now);d.setDate(d.getDate()-1);d.setHours(12,0,0,0);return d;}
+  // hari ini / tadi / sekarang
+  if(/hari ini|tadi|sekarang/.test(tl)){return now;}
+  // X hari lalu / X hari yang lalu
+  let m=tl.match(/(\d+)\s*hari\s*(yang\s*)?lalu/);
+  if(m){const d=new Date(now);d.setDate(d.getDate()-parseInt(m[1]));d.setHours(12,0,0,0);return d;}
+  // tanggal DD/MM/YYYY atau DD-MM-YYYY
+  m=t.match(/(\d{1,2})[\/\-](\d{1,2})(?:[\/\-](\d{2,4}))?/);
+  if(m){
+    const day=parseInt(m[1]),mon=parseInt(m[2])-1;
+    const yr=m[3]?(m[3].length===2?2000+parseInt(m[3]):parseInt(m[3])):now.getFullYear();
+    const d=new Date(yr,mon,day,12,0,0,0);
+    if(!isNaN(d.getTime()))return d;
+  }
+  // tanggal DD bulan (januari, februari, dst)
+  const bulan=['januari','februari','maret','april','mei','juni','juli','agustus','september','oktober','november','desember'];
+  for(let i=0;i<bulan.length;i++){
+    const rx=new RegExp('(\\d{1,2})\\s+'+bulan[i]+'(?:\\s+(\\d{2,4}))?');
+    m=tl.match(rx);
+    if(m){const yr=m[2]?(m[2].length===2?2000+parseInt(m[2]):parseInt(m[2])):now.getFullYear();const d=new Date(yr,i,parseInt(m[1]),12,0,0,0);if(!isNaN(d.getTime()))return d;}
+  }
+  // senin/selasa/rabu/kamis/jumat/sabtu/minggu (hari lalu)
+  const hari=['minggu','senin','selasa','rabu','kamis','jumat','sabtu'];
+  for(let i=0;i<hari.length;i++){
+    if(tl.includes(hari[i])){
+      const d=new Date(now);let diff=now.getDay()-i;
+      if(diff<=0)diff+=7;
+      d.setDate(d.getDate()-diff);d.setHours(12,0,0,0);return d;
+    }
+  }
+  return null;
+}
+function stripDateWords(t){
+  return t
+    .replace(/(\d{1,2})[\/\-](\d{1,2})(?:[\/\-](\d{2,4}))?/g,'')
+    .replace(/\d+\s*hari\s*(yang\s*)?lalu/gi,'')
+    .replace(/kemarin|kemaren|hari ini|tadi|sekarang/gi,'')
+    .replace(/(tanggal\s*)?\d{1,2}\s*(januari|februari|maret|april|mei|juni|juli|agustus|september|oktober|november|desember)(\s*\d{2,4})?/gi,'')
+    .replace(/\b(senin|selasa|rabu|kamis|jumat|sabtu|minggu)\b/gi,'')
+    .replace(/\s{2,}/g,' ').trim();
+}
+function fmtDateShort(d){return d.toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'});}
+function parseTx(raw){
+  const amt=parseAmt(raw);if(!amt||amt<100)return null;
+  const tp=detectType(raw),cat=detectCat(raw,tp);
+  const parsedDate=parseDate(raw);
+  const txDate=parsedDate||new Date();
+  const cleanDesc=stripDateWords(raw)||raw.trim();
+  return{id:Date.now()+'_'+Math.random().toString(36).slice(2),type:tp,amount:amt,desc:cleanDesc,category:cat,date:txDate.toISOString(),dateManual:!!parsedDate};
+}
 function fmtRp(n){if(n>=1e9)return'Rp '+(n/1e9).toFixed(1).replace('.0','')+' M';if(n>=1e6)return'Rp '+(n/1e6).toFixed(1).replace('.0','')+' jt';if(n>=1e3)return'Rp '+(n/1e3).toFixed(0)+' rb';return'Rp '+n;}
 function fmtFull(n){return'Rp '+n.toLocaleString('id-ID');}
 
@@ -580,7 +692,8 @@ async function sm(){
   if(!tx){addMsg('bot','Hmm, belum bisa membacanya. 🤔\nSertakan nominal, cth:\n"beli kopi 25rb" atau "gaji masuk 5jt"');return;}
   txs.unshift(tx);
   const cd=CATS[tx.type][tx.category];
-  addMsg('bot',`${tx.type==='income'?'✅ Pemasukan dicatat!':'💸 Pengeluaran dicatat!'}\n\n${cd.ic} ${tx.category}\n${fmtFull(tx.amount)}\n${tx.desc}`);
+  const tglInfo=tx.dateManual?`📅 ${fmtDateShort(new Date(tx.date))}`:`📅 ${fmtDateShort(new Date(tx.date))} (hari ini)`;
+  addMsg('bot',`${tx.type==='income'?'✅ Pemasukan dicatat!':'💸 Pengeluaran dicatat!'}\n\n${cd.ic} ${tx.category}\n${fmtFull(tx.amount)}\n${tx.desc}\n${tglInfo}`);
   sync('Menyimpan ke Google Sheets...');
   try{await apiPost({action:'add',data:tx});sync('');}
   catch(e){sync('⚠️ Gagal simpan.');setTimeout(()=>sync(''),3000);}
@@ -594,43 +707,170 @@ async function delTx(id){
 }
 
 /* ══ DASHBOARD ══ */
+/* ══ DASHBOARD ══ */
+let dashPeriod='month';
+
+function setDashPeriod(p){
+  dashPeriod=p;
+  document.querySelectorAll('.period-btn').forEach(b=>b.classList.toggle('on',b.dataset.p===p));
+  renderDashContent();
+}
+
+function getFilteredTxs(period){
+  const now=new Date();
+  return txs.filter(t=>{
+    const d=new Date(t.date);
+    if(period==='day'){
+      return d.toDateString()===now.toDateString();
+    }
+    if(period==='week'){
+      const startOfWeek=new Date(now);
+      startOfWeek.setDate(now.getDate()-now.getDay());
+      startOfWeek.setHours(0,0,0,0);
+      return d>=startOfWeek;
+    }
+    if(period==='month'){
+      return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();
+    }
+    if(period==='year'){
+      return d.getFullYear()===now.getFullYear();
+    }
+    if(period==='decade'){
+      return d.getFullYear()>=now.getFullYear()-9;
+    }
+    return true;
+  });
+}
+
+function getPeriodLabel(period){
+  const now=new Date();
+  if(period==='day') return 'Hari Ini, '+now.toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'});
+  if(period==='week'){
+    const start=new Date(now);start.setDate(now.getDate()-now.getDay());
+    return 'Minggu Ini ('+start.toLocaleDateString('id-ID',{day:'numeric',month:'short'})+' – '+now.toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'})+')';
+  }
+  if(period==='month') return now.toLocaleDateString('id-ID',{month:'long',year:'numeric'});
+  if(period==='year') return 'Tahun '+now.getFullYear();
+  if(period==='decade') return (now.getFullYear()-9)+' – '+now.getFullYear();
+  return '';
+}
+
+function getBarData(period){
+  const now=new Date();
+  if(period==='day'){
+    // Per jam (0-23)
+    return Array.from({length:24},(_,i)=>{
+      const dt=txs.filter(t=>{const d=new Date(t.date);return d.toDateString()===now.toDateString()&&d.getHours()===i;});
+      return{label:i+'h',inc:dt.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0)/1000,exp:dt.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amount,0)/1000};
+    }).filter((_,i)=>i<=now.getHours());
+  }
+  if(period==='week'){
+    // Per hari dalam minggu ini
+    const hr=['Min','Sen','Sel','Rab','Kam','Jum','Sab'];
+    return Array.from({length:7},(_,i)=>{
+      const d=new Date(now);d.setDate(now.getDate()-now.getDay()+i);
+      const ds=d.toDateString();
+      const dt=txs.filter(t=>new Date(t.date).toDateString()===ds);
+      return{label:hr[i],inc:dt.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0)/1000,exp:dt.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amount,0)/1000};
+    });
+  }
+  if(period==='month'){
+    // Per minggu dalam bulan
+    const weeks=[];
+    const first=new Date(now.getFullYear(),now.getMonth(),1);
+    const last=new Date(now.getFullYear(),now.getMonth()+1,0);
+    let cur=new Date(first);let wk=1;
+    while(cur<=last){
+      const wkStart=new Date(cur);
+      const wkEnd=new Date(cur);wkEnd.setDate(wkEnd.getDate()+6);if(wkEnd>last)wkEnd.setTime(last.getTime());
+      const dt=txs.filter(t=>{const d=new Date(t.date);return d>=wkStart&&d<=wkEnd&&d.getMonth()===now.getMonth();});
+      weeks.push({label:'Mg '+wk,inc:dt.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0)/1000,exp:dt.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amount,0)/1000});
+      cur.setDate(cur.getDate()+7);wk++;
+    }
+    return weeks;
+  }
+  if(period==='year'){
+    // Per bulan
+    const bl=['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+    return Array.from({length:12},(_,i)=>{
+      const dt=txs.filter(t=>{const d=new Date(t.date);return d.getMonth()===i&&d.getFullYear()===now.getFullYear();});
+      return{label:bl[i],inc:dt.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0)/1e6,exp:dt.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amount,0)/1e6};
+    });
+  }
+  if(period==='decade'){
+    // Per tahun
+    return Array.from({length:10},(_,i)=>{
+      const yr=now.getFullYear()-9+i;
+      const dt=txs.filter(t=>new Date(t.date).getFullYear()===yr);
+      return{label:String(yr),inc:dt.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0)/1e6,exp:dt.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amount,0)/1e6};
+    });
+  }
+  return [];
+}
+
+function getBarUnit(period){
+  if(period==='day') return 'rb';
+  if(period==='week') return 'rb';
+  if(period==='month') return 'rb';
+  return 'jt';
+}
+
 function renderDash(){
-  const dc=document.getElementById('dc'),now=new Date();
-  const mo=txs.filter(t=>{const d=new Date(t.date);return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();});
+  const dc=document.getElementById('dc');
+  dc.innerHTML=`
+    <div class="period-bar">
+      <button class="period-btn${dashPeriod==='day'?' on':''}" data-p="day" onclick="setDashPeriod('day')">Hari Ini</button>
+      <button class="period-btn${dashPeriod==='week'?' on':''}" data-p="week" onclick="setDashPeriod('week')">Minggu Ini</button>
+      <button class="period-btn${dashPeriod==='month'?' on':''}" data-p="month" onclick="setDashPeriod('month')">Bulan Ini</button>
+      <button class="period-btn${dashPeriod==='year'?' on':''}" data-p="year" onclick="setDashPeriod('year')">Tahun Ini</button>
+      <button class="period-btn${dashPeriod==='decade'?' on':''}" data-p="decade" onclick="setDashPeriod('decade')">10 Tahun</button>
+    </div>
+    <div id="dash-content"></div>`;
+  renderDashContent();
+}
+
+function renderDashContent(){
+  if(pc){pc.destroy();pc=null;}if(bc){bc.destroy();bc=null;}
+  const mo=getFilteredTxs(dashPeriod);
   const inc=mo.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0);
   const exp=mo.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amount,0);
   const bal=inc-exp;
   const expCat={};mo.filter(t=>t.type==='expense').forEach(t=>expCat[t.category]=(expCat[t.category]||0)+t.amount);
   const pie=Object.entries(expCat).sort((a,b)=>b[1]-a[1]);
-  const bar=Array.from({length:7},(_,i)=>{
-    const d=new Date(now);d.setDate(d.getDate()-(6-i));const ds=d.toDateString();
-    const dt=txs.filter(t=>new Date(t.date).toDateString()===ds);
-    return{day:d.toLocaleDateString('id-ID',{weekday:'short'}),inc:dt.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0)/1000,exp:dt.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amount,0)/1000};
-  });
-  dc.innerHTML=`
-    <div class="stl">RINGKASAN BULAN INI — ${userName.toUpperCase()}</div>
+  const bar=getBarData(dashPeriod);
+  const unit=getBarUnit(dashPeriod);
+  const label=getPeriodLabel(dashPeriod);
+  const fmtVal=n=>dashPeriod==='decade'||dashPeriod==='year'?fmtRp(n):fmtRp(n);
+
+  document.getElementById('dash-content').innerHTML=`
+    <div class="period-title">${label} · ${userName}</div>
     <div class="mc-grid" style="margin-bottom:8px">
       <div class="mc"><div class="mc-lbl">Saldo</div><div class="mc-val ${bal>=0?'pos':'neg'}">${bal<0?'-':''}${fmtRp(Math.abs(bal))}</div></div>
       <div class="mc"><div class="mc-lbl">Transaksi</div><div class="mc-val">${mo.length}</div></div>
     </div>
-    <div class="mc-grid">
+    <div class="mc-grid" style="margin-bottom:16px">
       <div class="mc"><div class="mc-lbl">Pemasukan</div><div class="mc-val inc">${fmtRp(inc)}</div></div>
       <div class="mc"><div class="mc-lbl">Pengeluaran</div><div class="mc-val exp">${fmtRp(exp)}</div></div>
     </div>
     ${pie.length>0?`
     <div class="stl">PENGELUARAN PER KATEGORI</div>
-    <div class="leg-wrap">${pie.map(([n,v])=>`<span class="leg"><span class="leg-d" style="background:${CATS.expense[n]?.col||'#888'}"></span>${n} ${fmtRp(v)}</span>`).join('')}</div>
-    <div style="position:relative;height:210px;margin-bottom:6px"><canvas id="pie-c" role="img" aria-label="Pie chart pengeluaran">${pie.map(([n,v])=>n+' '+fmtRp(v)).join(', ')}</canvas></div>`
-    :`<div class="emp">Belum ada pengeluaran bulan ini.</div>`}
-    <div class="stl">AKTIVITAS 7 HARI TERAKHIR</div>
+    <div class="leg-wrap">${pie.slice(0,6).map(([n,v])=>`<span class="leg"><span class="leg-d" style="background:${CATS.expense[n]?.col||'#888'}"></span>${n} ${fmtRp(v)}</span>`).join('')}</div>
+    <div style="position:relative;height:210px;margin-bottom:14px"><canvas id="pie-c" role="img" aria-label="Pie chart pengeluaran">${pie.map(([n,v])=>n+' '+fmtRp(v)).join(', ')}</canvas></div>`
+    :`<div class="emp" style="padding:24px 0">Belum ada pengeluaran<br>pada periode ini.</div>`}
+    <div class="stl">GRAFIK PEMASUKAN & PENGELUARAN</div>
     <div class="leg-wrap">
-      <span class="leg"><span class="leg-d" style="background:#4ade80"></span>Pemasukan (rb)</span>
-      <span class="leg"><span class="leg-d" style="background:#f87171"></span>Pengeluaran (rb)</span>
+      <span class="leg"><span class="leg-d" style="background:#4ade80"></span>Pemasukan (${unit})</span>
+      <span class="leg"><span class="leg-d" style="background:#f87171"></span>Pengeluaran (${unit})</span>
     </div>
-    <div style="position:relative;height:160px;margin-bottom:24px"><canvas id="bar-c" role="img" aria-label="Bar chart 7 hari"></canvas></div>`;
-  if(pc){pc.destroy();pc=null;}if(bc){bc.destroy();bc=null;}
-  if(pie.length>0){pc=new Chart(document.getElementById('pie-c'),{type:'doughnut',data:{labels:pie.map(([n])=>n),datasets:[{data:pie.map(([,v])=>v),backgroundColor:pie.map(([n])=>CATS.expense[n]?.col||'#888'),borderWidth:2,borderColor:'rgba(13,0,32,0.5)'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>' '+fmtFull(ctx.raw)}}},cutout:'58%'}});}
-  bc=new Chart(document.getElementById('bar-c'),{type:'bar',data:{labels:bar.map(d=>d.day),datasets:[{label:'Pemasukan',data:bar.map(d=>Math.round(d.inc)),backgroundColor:'rgba(74,222,128,0.7)'},{label:'Pengeluaran',data:bar.map(d=>Math.round(d.exp)),backgroundColor:'rgba(248,113,113,0.7)'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{color:'rgba(255,255,255,0.05)'},ticks:{color:'rgba(255,255,255,0.4)',font:{size:11,family:'Outfit'}}},y:{grid:{color:'rgba(255,255,255,0.05)'},ticks:{color:'rgba(255,255,255,0.4)',font:{size:11,family:'Outfit'},callback:v=>v+'rb'}}},barPercentage:.65}});
+    ${bar.length>0?`<div style="position:relative;height:170px;margin-bottom:24px"><canvas id="bar-c" role="img" aria-label="Grafik bar"></canvas></div>`
+    :`<div class="emp" style="padding:20px 0">Belum ada data.</div>`}`;
+
+  if(pie.length>0){
+    pc=new Chart(document.getElementById('pie-c'),{type:'doughnut',data:{labels:pie.map(([n])=>n),datasets:[{data:pie.map(([,v])=>v),backgroundColor:pie.map(([n])=>CATS.expense[n]?.col||'#888'),borderWidth:2,borderColor:'rgba(13,0,32,0.5)'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>' '+fmtFull(ctx.raw)}}},cutout:'58%'}});
+  }
+  if(bar.length>0){
+    bc=new Chart(document.getElementById('bar-c'),{type:'bar',data:{labels:bar.map(d=>d.label),datasets:[{label:'Pemasukan',data:bar.map(d=>parseFloat(d.inc.toFixed(1))),backgroundColor:'rgba(74,222,128,0.7)'},{label:'Pengeluaran',data:bar.map(d=>parseFloat(d.exp.toFixed(1))),backgroundColor:'rgba(248,113,113,0.7)'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{color:'rgba(255,255,255,0.05)'},ticks:{color:'rgba(255,255,255,0.4)',font:{size:10,family:'Outfit'},maxRotation:0}},y:{grid:{color:'rgba(255,255,255,0.05)'},ticks:{color:'rgba(255,255,255,0.4)',font:{size:10,family:'Outfit'},callback:v=>v+unit}}},barPercentage:.7}});
+  }
 }
 
 /* ══ HISTORY ══ */
