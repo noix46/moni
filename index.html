@@ -574,7 +574,14 @@ function doPost(e){
   }catch(err){return out({ok:false,err:err.toString()});}
   return out({ok:false});
 }
-function out(data){return ContentService.createTextOutput(JSON.stringify(data)).setMimeType(ContentService.MimeType.JSON);}`;
+function out(data){
+  return ContentService.createTextOutput(JSON.stringify(data))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+function doOptions(e){
+  return ContentService.createTextOutput('')
+    .setMimeType(ContentService.MimeType.TEXT);
+}`;
 
 document.getElementById('gs-code-el').textContent=GS;
 
@@ -677,13 +684,29 @@ async function doRegister(){
   if(regPin2.length<4){err.textContent='Konfirmasi kode kunci terlebih dahulu';return;}
   if(regPin!==regPin2){err.textContent='Kode kunci tidak cocok';return;}
   const newUid=await makeUserId(name,regPin);
-  // Cek apakah nama sudah ada di Sheets
+  // Cek nama via GET (tidak ada CORS issue)
   err.textContent='Memeriksa nama...';
   try{
-    const res=await fetch(URL_,{method:'POST',body:JSON.stringify({action:'register',userName:name,userId:newUid}),headers:{'Content-Type':'text/plain'},redirect:'follow'});
-    const data=await res.json();
-    if(!data.ok){err.textContent='❌ Nama "'+name+'" sudah terdaftar. Gunakan nama lain atau langsung Masuk.';return;}
-  }catch(e){err.textContent='Gagal terhubung ke server. Coba lagi.';}
+    const r=await fetch(`${URL_}?action=users`,{method:'GET',redirect:'follow'});
+    const users=await r.json();
+    if(Array.isArray(users)){
+      const exists=users.some(u=>String(u.userName||'').toLowerCase()===name.toLowerCase());
+      if(exists){err.textContent='❌ Nama "'+name+'" sudah terdaftar. Gunakan nama lain atau langsung Masuk.';return;}
+    }
+  }catch(e){
+    // Jika gagal cek, tetap lanjut (offline-friendly)
+  }
+  err.textContent='Mendaftarkan akun...';
+  // POST pakai no-cors (fire and forget, tidak baca response — hindari CORS error)
+  try{
+    await fetch(URL_,{
+      method:'POST',
+      body:JSON.stringify({action:'register',userName:name,userId:newUid}),
+      headers:{'Content-Type':'text/plain'},
+      redirect:'follow',
+      mode:'no-cors'
+    });
+  }catch(e){/* lanjut meski error, data biasanya tetap tersimpan */}
   err.textContent='';
   userId=newUid;userName=name;
   sessionStorage.setItem(SK,JSON.stringify({userId,userName}));
@@ -1162,9 +1185,9 @@ async function confirmReset(){
   const oldUserId=selectedUser.userId;
   const newUserId=await makeUserId(selectedUser.userName,modalPin);
   try{
-    await fetch(URL_,{method:'POST',body:JSON.stringify({action:'resetPassword',userName:selectedUser.userName,oldUserId,newUserId}),headers:{'Content-Type':'text/plain'},redirect:'follow'});
+    await fetch(URL_,{method:'POST',body:JSON.stringify({action:'resetPassword',userName:selectedUser.userName,oldUserId,newUserId}),headers:{'Content-Type':'text/plain'},redirect:'follow',mode:'no-cors'});
     closeModal();
-    // Refresh list
+    await new Promise(r=>setTimeout(r,1000));
     await loadAdminUsers();
     alert('✅ Password '+selectedUser.userName+' berhasil direset!');
   }catch(e){err.textContent='Gagal menyimpan. Coba lagi.';}
@@ -1173,8 +1196,9 @@ async function confirmReset(){
 async function confirmDelete(){
   if(!selectedUser)return;
   try{
-    await fetch(URL_,{method:'POST',body:JSON.stringify({action:'deleteUser',userName:selectedUser.userName,userId:selectedUser.userId}),headers:{'Content-Type':'text/plain'},redirect:'follow'});
+    await fetch(URL_,{method:'POST',body:JSON.stringify({action:'deleteUser',userName:selectedUser.userName,userId:selectedUser.userId}),headers:{'Content-Type':'text/plain'},redirect:'follow',mode:'no-cors'});
     closeModal();
+    await new Promise(r=>setTimeout(r,1000));
     await loadAdminUsers();
     alert('🗑️ Akun '+selectedUser.userName+' berhasil dihapus.');
   }catch(e){alert('Gagal menghapus. Coba lagi.');}
