@@ -2,408 +2,602 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
 <meta name="mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
-<meta name="apple-mobile-web-app-title" content="Dompet Keluarga"/>
-<meta name="theme-color" content="#ffffff"/>
-<title>Dompet Keluarga</title>
+<meta name="apple-mobile-web-app-title" content="WYZ Money"/>
+<meta name="theme-color" content="#0d0020"/>
+<title>WYZ Money</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f4f4f4;min-height:100vh}
-.app{width:100%;max-width:430px;height:100svh;display:flex;flex-direction:column;background:#fff;overflow:hidden;margin:0 auto;position:relative}
-.hdr{padding:12px 16px 10px;border-bottom:1px solid #eee;display:flex;align-items:center;background:#fff;flex-shrink:0}
-.hdr-logo{font-size:17px;font-weight:700;color:#111;letter-spacing:-.4px}
-.hdr-sub{font-size:12px;color:#999;margin-left:auto}
-.hdr-btn{font-size:12px;color:#bbb;cursor:pointer;margin-left:10px;padding:4px 8px;border:1px solid #eee;border-radius:6px;background:none;font-family:inherit}
+:root{
+  --bg:#0d0020;
+  --glass:rgba(255,255,255,0.07);
+  --glass-border:rgba(255,255,255,0.12);
+  --glass-hover:rgba(255,255,255,0.12);
+  --text:#fff;
+  --text-muted:rgba(255,255,255,0.5);
+  --text-dim:rgba(255,255,255,0.25);
+  --accent:#c084fc;
+  --accent2:#818cf8;
+  --gold:#fbbf24;
+  --green:#4ade80;
+  --red:#f87171;
+  --blur:blur(24px);
+}
+body{font-family:'Outfit',sans-serif;background:var(--bg);min-height:100vh;overflow:hidden}
+
+/* ══ ANIMATED BACKGROUND ══ */
+.bg{position:fixed;inset:0;z-index:0;overflow:hidden}
+.blob{position:absolute;border-radius:50%;filter:blur(90px);opacity:.55}
+.b1{width:500px;height:500px;background:radial-gradient(circle,#7c3aed,#4f46e5);top:-100px;left:-150px;animation:fl1 12s ease-in-out infinite}
+.b2{width:400px;height:400px;background:radial-gradient(circle,#db2777,#9333ea);bottom:-80px;right:-100px;animation:fl2 15s ease-in-out infinite}
+.b3{width:350px;height:350px;background:radial-gradient(circle,#0891b2,#2563eb);top:40%;left:40%;animation:fl3 10s ease-in-out infinite}
+.b4{width:280px;height:280px;background:radial-gradient(circle,#d97706,#dc2626);bottom:20%;left:5%;animation:fl4 13s ease-in-out infinite}
+@keyframes fl1{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(60px,-40px) scale(1.15)}66%{transform:translate(-30px,50px) scale(0.9)}}
+@keyframes fl2{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(-50px,40px) scale(1.1)}66%{transform:translate(40px,-60px) scale(0.85)}}
+@keyframes fl3{0%,100%{transform:translate(-50%,-50%) scale(1)}50%{transform:translate(-50%,-50%) scale(1.3)}}
+@keyframes fl4{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(40px,-30px) scale(1.2)}}
+
+/* ══ PAGES ══ */
+.page{display:none;position:fixed;inset:0;z-index:10;overflow-y:auto;align-items:center;justify-content:center}
+.page.on{display:flex;animation:fadeIn .4s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+/* ══ GLASS CARD ══ */
+.glass-card{
+  background:var(--glass);
+  backdrop-filter:var(--blur);
+  -webkit-backdrop-filter:var(--blur);
+  border:1px solid var(--glass-border);
+  border-radius:24px;
+}
+
+/* ══ WELCOME PAGE ══ */
+#pg-welcome{flex-direction:column;padding:24px 20px 32px}
+.wlc-inner{width:100%;max-width:380px;display:flex;flex-direction:column;min-height:100svh;align-items:center;justify-content:space-between;padding:60px 0 40px}
+.wlc-top{text-align:center;width:100%}
+.wlc-icon{font-size:56px;margin-bottom:16px;display:block;animation:bounce 2s ease-in-out infinite}
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+.wlc-title{font-size:36px;font-weight:800;color:#fff;letter-spacing:-.8px;line-height:1.15;margin-bottom:6px;background:linear-gradient(135deg,#e0c3fc,#8ec5fc,#c084fc);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.wlc-sub{font-size:13px;color:var(--text-muted);margin-bottom:24px}
+.wlc-photo-wrap{position:relative;width:160px;height:160px;margin:0 auto 20px;flex-shrink:0}
+.wlc-photo{width:160px;height:160px;border-radius:50%;object-fit:cover;object-position:center top;position:relative;z-index:2;border:3px solid rgba(255,255,255,0.15)}
+.wlc-photo-ring{position:absolute;inset:-6px;border-radius:50%;z-index:1;background:conic-gradient(from 0deg,#a855f7,#6366f1,#db2777,#f59e0b,#a855f7);animation:spin-ring 4s linear infinite;-webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 4px),#fff calc(100% - 3px));mask:radial-gradient(farthest-side,transparent calc(100% - 4px),#fff calc(100% - 3px))}
+@keyframes spin-ring{to{transform:rotate(360deg)}}
+
+.wlc-quote{
+  width:100%;padding:18px 20px;border-radius:18px;
+  background:rgba(251,191,36,0.08);
+  border:1px solid rgba(251,191,36,0.2);
+  margin-bottom:40px;
+}
+.wlc-quote-text{font-size:14px;color:var(--gold);font-style:italic;font-weight:500;line-height:1.7}
+.wlc-quote-attr{font-size:11px;color:rgba(251,191,36,0.5);margin-top:6px}
+.wlc-btns{width:100%;display:flex;flex-direction:column;gap:12px}
+.btn-main{
+  width:100%;padding:16px;font-size:15px;font-weight:700;border:none;border-radius:16px;cursor:pointer;font-family:'Outfit',sans-serif;letter-spacing:.1px;transition:all .2s;
+  background:linear-gradient(135deg,#a855f7,#6366f1);color:#fff;
+  box-shadow:0 4px 24px rgba(168,85,247,0.4);
+}
+.btn-main:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(168,85,247,0.5)}
+.btn-main:active{transform:translateY(0);opacity:.9}
+.btn-sec{
+  width:100%;padding:15px;font-size:15px;font-weight:600;border-radius:16px;cursor:pointer;font-family:'Outfit',sans-serif;transition:all .2s;
+  background:var(--glass);backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);
+  border:1px solid var(--glass-border);color:#fff;
+}
+.btn-sec:hover{background:var(--glass-hover);transform:translateY(-1px)}
+.btn-sec:active{opacity:.8}
+.wlc-setup{font-size:12px;color:var(--text-dim);text-align:center;cursor:pointer;margin-top:6px;text-decoration:underline;background:none;border:none;font-family:'Outfit',sans-serif}
+.wlc-setup:hover{color:var(--text-muted)}
+
+/* ══ AUTH PAGES ══ */
+#pg-register,#pg-login{flex-direction:column;padding:20px}
+.auth-wrap{width:100%;max-width:380px;padding:32px 28px;min-height:100svh;display:flex;flex-direction:column}
+.auth-back{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text-muted);cursor:pointer;background:none;border:none;font-family:'Outfit',sans-serif;margin-bottom:36px;padding:0;transition:color .2s}
+.auth-back:hover{color:#fff}
+.auth-logo{font-size:13px;color:var(--text-muted);margin-bottom:36px;font-weight:500}
+.auth-title{font-size:26px;font-weight:800;color:#fff;margin-bottom:6px;letter-spacing:-.4px}
+.auth-desc{font-size:13px;color:var(--text-muted);margin-bottom:28px;line-height:1.65}
+.auth-label{font-size:11px;font-weight:600;color:var(--text-muted);letter-spacing:.1em;margin-bottom:8px;display:block}
+.auth-input{
+  width:100%;font-size:15px;font-family:'Outfit',sans-serif;
+  background:rgba(255,255,255,0.06);
+  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+  border:1px solid rgba(255,255,255,0.1);border-radius:14px;
+  padding:14px 16px;outline:none;color:#fff;margin-bottom:20px;
+  transition:all .25s;
+}
+.auth-input:focus{border-color:rgba(168,85,247,0.6);background:rgba(255,255,255,0.1);box-shadow:0 0 0 3px rgba(168,85,247,0.15)}
+.auth-input::placeholder{color:var(--text-dim)}
+
+/* PIN */
+.pin-step{font-size:12px;color:var(--text-muted);text-align:center;margin-bottom:16px;min-height:18px}
+.pin-dots{display:flex;justify-content:center;gap:14px;margin-bottom:28px}
+.pin-dot{width:18px;height:18px;border-radius:50%;background:rgba(255,255,255,0.12);border:1.5px solid rgba(255,255,255,0.2);transition:all .2s}
+.pin-dot.on{background:linear-gradient(135deg,#a855f7,#6366f1);border-color:transparent;transform:scale(1.2);box-shadow:0 0 10px rgba(168,85,247,0.6)}
+.numpad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:24px}
+.nk{
+  padding:18px;font-size:22px;font-weight:500;border:none;border-radius:14px;cursor:pointer;
+  font-family:'Outfit',sans-serif;color:#fff;transition:all .15s;
+  background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.08);
+}
+.nk:active{background:rgba(255,255,255,0.16);transform:scale(.95)}
+.nk.del{font-size:18px;color:var(--text-muted)}
+.nk.empty{background:transparent;border:none;cursor:default}
+.auth-btn{
+  width:100%;padding:16px;font-size:15px;font-weight:700;border:none;border-radius:16px;cursor:pointer;
+  font-family:'Outfit',sans-serif;transition:all .2s;
+  background:linear-gradient(135deg,#a855f7,#6366f1);color:#fff;
+  box-shadow:0 4px 20px rgba(168,85,247,0.35);
+}
+.auth-btn:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(168,85,247,0.45)}
+.auth-btn:active{transform:translateY(0)}
+.auth-err{font-size:13px;color:#f87171;text-align:center;min-height:20px;margin-bottom:12px}
+.auth-note{font-size:12px;color:var(--text-dim);text-align:center;line-height:1.7;margin-top:14px}
+
+/* ══ MAIN APP ══ */
+#pg-app{align-items:stretch;justify-content:flex-start;overflow:hidden}
+.app-shell{width:100%;max-width:430px;margin:0 auto;height:100svh;display:flex;flex-direction:column;position:relative}
+.hdr{
+  padding:14px 16px 12px;display:flex;align-items:center;flex-shrink:0;
+  background:rgba(13,0,32,0.7);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  border-bottom:1px solid rgba(255,255,255,0.08);
+}
+.hdr-logo{font-size:15px;font-weight:700;color:#fff}
+.hdr-user{
+  font-size:11px;color:var(--accent);margin-left:8px;
+  background:rgba(168,85,247,0.15);border:1px solid rgba(168,85,247,0.25);
+  padding:3px 10px;border-radius:20px;font-weight:600;letter-spacing:.02em;
+}
+.hdr-month{font-size:11px;color:var(--text-dim);margin-left:auto}
+.hdr-out{
+  font-size:11px;color:var(--text-muted);cursor:pointer;margin-left:10px;
+  padding:4px 10px;border:1px solid rgba(255,255,255,0.1);border-radius:8px;
+  background:none;font-family:'Outfit',sans-serif;transition:all .2s;
+}
+.hdr-out:hover{background:rgba(255,255,255,0.08);color:#fff}
 .body{flex:1;overflow:hidden;display:flex;flex-direction:column;min-height:0}
 .tab{display:none;flex-direction:column;height:100%;min-height:0}
-.tab.on{display:flex}
+.tab.on{display:flex;animation:fadeIn .3s ease}
 .scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:14px 16px}
-.nav{display:flex;border-top:1px solid #eee;background:#fff;flex-shrink:0;padding-bottom:env(safe-area-inset-bottom,0)}
-.nav button{flex:1;padding:10px 8px;font-size:12px;font-weight:400;border:none;border-radius:0;background:transparent;color:#aaa;cursor:pointer;border-top:2px solid transparent;font-family:inherit}
-.nav button.on{color:#111;font-weight:700;border-top-color:#111}
+.nav{
+  display:flex;flex-shrink:0;padding-bottom:env(safe-area-inset-bottom,0);
+  background:rgba(13,0,32,0.8);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  border-top:1px solid rgba(255,255,255,0.08);
+}
+.nav button{
+  flex:1;padding:10px 8px;font-size:12px;font-weight:400;border:none;border-radius:0;
+  background:transparent;color:rgba(255,255,255,0.35);cursor:pointer;
+  border-top:2px solid transparent;font-family:'Outfit',sans-serif;transition:all .2s;
+}
+.nav button.on{color:var(--accent);font-weight:600;border-top-color:var(--accent)}
+
+/* CHAT */
 .msgs{display:flex;flex-direction:column;gap:8px;padding:14px 14px 10px}
-.bbl{max-width:82%;padding:10px 13px;border-radius:4px 16px 16px 16px;font-size:14px;line-height:1.6;white-space:pre-wrap;background:#f1f1f1;color:#111;align-self:flex-start}
-.bbu{max-width:82%;padding:10px 13px;border-radius:16px 4px 16px 16px;font-size:14px;line-height:1.6;background:#111;color:#fff;align-self:flex-end}
-.ci-bar{padding:8px 12px 10px;border-top:1px solid #eee;display:flex;gap:8px;flex-shrink:0;background:#fff}
-.ci-bar input{flex:1;font-size:14px;border:1.5px solid #e0e0e0;border-radius:24px;padding:10px 14px;outline:none;font-family:inherit;background:#fafafa}
-.ci-bar input:focus{border-color:#111;background:#fff}
-.ci-bar button{font-size:13px;padding:0 18px;background:#111;color:#fff;border:none;border-radius:24px;cursor:pointer;font-family:inherit;font-weight:600;flex-shrink:0}
-.ci-bar button:active{opacity:.8}
-.sync-bar{font-size:11px;color:#aaa;text-align:center;padding:3px 0;flex-shrink:0;min-height:18px}
-.stl{font-size:10px;font-weight:700;color:#bbb;margin:16px 0 8px;letter-spacing:.1em}
+.bbl{
+  max-width:82%;padding:11px 14px;border-radius:6px 18px 18px 18px;font-size:14px;line-height:1.6;white-space:pre-wrap;align-self:flex-start;
+  background:rgba(255,255,255,0.08);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+  border:1px solid rgba(255,255,255,0.1);color:#e9d5ff;
+}
+.bbu{
+  max-width:82%;padding:11px 14px;border-radius:18px 6px 18px 18px;font-size:14px;line-height:1.6;align-self:flex-end;
+  background:linear-gradient(135deg,rgba(168,85,247,0.7),rgba(99,102,241,0.7));
+  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+  border:1px solid rgba(168,85,247,0.3);color:#fff;
+}
+.ci-bar{
+  padding:10px 12px 12px;border-top:1px solid rgba(255,255,255,0.08);display:flex;gap:8px;flex-shrink:0;
+  background:rgba(13,0,32,0.6);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+}
+.ci-bar input{
+  flex:1;font-size:14px;font-family:'Outfit',sans-serif;
+  background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:24px;
+  padding:10px 16px;outline:none;color:#fff;transition:all .2s;
+}
+.ci-bar input:focus{border-color:rgba(168,85,247,0.5);background:rgba(255,255,255,0.1);box-shadow:0 0 0 2px rgba(168,85,247,0.12)}
+.ci-bar input::placeholder{color:rgba(255,255,255,0.25)}
+.ci-bar button{
+  font-size:13px;font-weight:600;padding:0 18px;border:none;border-radius:24px;cursor:pointer;
+  font-family:'Outfit',sans-serif;flex-shrink:0;
+  background:linear-gradient(135deg,#a855f7,#6366f1);color:#fff;transition:all .2s;
+}
+.ci-bar button:active{opacity:.8;transform:scale(.97)}
+.sync-bar{font-size:11px;color:var(--text-muted);text-align:center;padding:3px 0;flex-shrink:0;min-height:18px}
+
+/* DASHBOARD */
+.stl{font-size:10px;font-weight:700;color:rgba(255,255,255,0.3);margin:16px 0 10px;letter-spacing:.12em}
 .mc-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
-.mc{background:#f7f7f7;border-radius:14px;padding:14px}
-.mc-lbl{font-size:11px;color:#999;margin-bottom:5px;font-weight:500}
-.mc-val{font-size:20px;font-weight:700;color:#111}
-.mc-val.inc{color:#16a34a}.mc-val.exp{color:#dc2626}.mc-val.pos{color:#16a34a}.mc-val.neg{color:#dc2626}
+.mc{
+  border-radius:16px;padding:14px 16px;
+  background:rgba(255,255,255,0.06);
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  border:1px solid rgba(255,255,255,0.08);
+}
+.mc-lbl{font-size:11px;color:var(--text-muted);margin-bottom:6px;font-weight:500}
+.mc-val{font-size:20px;font-weight:700;color:#fff}
+.mc-val.pos{color:var(--green)}.mc-val.neg{color:var(--red)}
+.mc-val.inc{color:var(--green)}.mc-val.exp{color:var(--red)}
 .leg-wrap{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
-.leg{display:flex;align-items:center;gap:5px;font-size:12px;color:#666}
+.leg{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--text-muted)}
 .leg-d{width:10px;height:10px;border-radius:2px;flex-shrink:0}
-.tx{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #f2f2f2}
+
+/* HISTORY */
+.tx{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.06)}
 .tx:last-child{border-bottom:none}
-.tx-ic{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:17px;background:#f5f5f5;flex-shrink:0}
+.tx-ic{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:17px;background:rgba(255,255,255,0.07);flex-shrink:0;border:1px solid rgba(255,255,255,0.08)}
 .tx-inf{flex:1;min-width:0}
-.tx-d{font-size:13px;font-weight:600;color:#111;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.tx-c{font-size:11px;color:#aaa;margin-top:2px}
+.tx-d{font-size:13px;font-weight:600;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tx-c{font-size:11px;color:var(--text-muted);margin-top:2px}
 .tx-r{text-align:right;flex-shrink:0}
 .tx-am{font-size:14px;font-weight:700}
-.tx-am.inc{color:#16a34a}.tx-am.exp{color:#dc2626}
-.tx-dt{font-size:11px;color:#ccc;margin-top:2px}
-.tx-del{font-size:20px;color:#ddd;cursor:pointer;padding:2px 6px;flex-shrink:0;background:none;border:none;line-height:1}
-.tx-del:hover{color:#dc2626}
-.emp{text-align:center;padding:50px 20px;color:#ccc;font-size:14px;line-height:2}
-.ld-overlay{position:absolute;inset:0;background:rgba(255,255,255,.92);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;z-index:99}
-.spinner{width:28px;height:28px;border:3px solid #eee;border-top-color:#111;border-radius:50%;animation:spin .7s linear infinite}
+.tx-am.inc{color:var(--green)}.tx-am.exp{color:var(--red)}
+.tx-dt{font-size:11px;color:var(--text-dim);margin-top:2px}
+.tx-del{font-size:20px;color:rgba(255,255,255,0.15);cursor:pointer;padding:2px 6px;flex-shrink:0;background:none;border:none;line-height:1;transition:color .2s}
+.tx-del:hover{color:var(--red)}
+.emp{text-align:center;padding:50px 20px;color:var(--text-dim);font-size:14px;line-height:2}
+
+/* LOADING */
+.ld-overlay{position:absolute;inset:0;background:rgba(13,0,32,.85);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;z-index:99}
+.spinner{width:32px;height:32px;border:3px solid rgba(168,85,247,0.2);border-top-color:#a855f7;border-radius:50%;animation:spin .7s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
-.ld-txt{font-size:13px;color:#999}
-#pg-setup{display:none;position:fixed;inset:0;background:#fff;overflow-y:auto;z-index:100}
-.sw-hdr{padding:22px 20px 14px;border-bottom:1px solid #f0f0f0;position:sticky;top:0;background:#fff;z-index:1}
-.sw-hdr h1{font-size:20px;font-weight:700;color:#111}
-.sw-hdr p{font-size:13px;color:#888;margin-top:4px;line-height:1.5}
-.sw-body{padding:20px 20px 40px}
-.step{display:flex;gap:14px;margin-bottom:26px}
-.sn{width:28px;height:28px;border-radius:50%;background:#111;color:#fff;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
-.sb{flex:1}
-.st{font-size:15px;font-weight:700;color:#111;margin-bottom:6px}
-.sd{font-size:13px;color:#666;line-height:1.7;margin-bottom:10px}
-.sd b{color:#111}
-.sl{display:inline-block;font-size:13px;color:#fff;background:#111;padding:9px 18px;border-radius:10px;text-decoration:none;margin-bottom:10px}
-.code-box{background:#f6f6f6;border-radius:10px;padding:12px 14px;margin-bottom:10px;border:1px solid #eee}
-.code-box pre{font-size:11px;font-family:'Courier New',monospace;color:#333;white-space:pre-wrap;word-break:break-all;max-height:130px;overflow-y:auto;line-height:1.65}
-.copy-btn{display:block;width:100%;font-size:14px;font-weight:700;padding:11px;background:#111;color:#fff;border:none;border-radius:10px;cursor:pointer;font-family:inherit;margin-bottom:16px}
-.copy-btn.ok{background:#16a34a}
-.info-box{background:#f7f7f7;border-radius:10px;padding:11px 14px;font-size:12px;color:#777;line-height:1.85;margin-bottom:10px;border-left:3px solid #ddd}
-.url-in{width:100%;font-size:13px;border:1.5px solid #ddd;border-radius:10px;padding:12px 14px;outline:none;font-family:inherit;margin-bottom:10px}
-.url-in:focus{border-color:#111}
-.url-in::placeholder{color:#ccc}
-.conn-btn{display:block;width:100%;font-size:15px;font-weight:700;padding:14px;background:#111;color:#fff;border:none;border-radius:12px;cursor:pointer;font-family:inherit}
-.conn-btn:active{opacity:.8}
-.err-txt{color:#dc2626;font-size:12px;margin-top:8px;display:none}
-.divider{border:none;border-top:1px solid #f0f0f0;margin:6px 0 20px}
-@media(prefers-color-scheme:dark){
-  body{background:#0d0d0d}
-  .app{background:#111}
-  .hdr{background:#111;border-color:#222}
-  .hdr-logo{color:#fff}.hdr-sub{color:#555}.hdr-btn{color:#444;border-color:#333}
-  .bbl{background:#1e1e1e;color:#eee}.bbu{background:#e5e5e5;color:#111}
-  .ci-bar{background:#111;border-color:#222}
-  .ci-bar input{background:#1a1a1a;border-color:#333;color:#eee}
-  .ci-bar input:focus{border-color:#eee;background:#222}
-  .ci-bar button{background:#eee;color:#111}
-  .mc{background:#1a1a1a}.mc-lbl{color:#666}.mc-val{color:#eee}
-  .nav{background:#111;border-color:#222}.nav button{color:#444}.nav button.on{color:#eee;border-top-color:#eee}
-  .tx-d{color:#eee}.tx-ic{background:#1e1e1e}.tx{border-color:#1e1e1e}
-  .emp{color:#444}.stl{color:#444}.leg{color:#666}
-  .ld-overlay{background:rgba(17,17,17,.92)}.spinner{border-color:#333;border-top-color:#eee}.ld-txt{color:#666}
-  #pg-setup{background:#111}
-  .sw-hdr{background:#111;border-color:#222}.sw-hdr h1{color:#eee}.sw-hdr p{color:#666}
-  .st{color:#eee}.sd{color:#888}.sd b{color:#eee}
-  .code-box{background:#1a1a1a;border-color:#333}.code-box pre{color:#ccc}
-  .info-box{background:#1a1a1a;color:#666;border-color:#333}
-  .url-in{background:#1a1a1a;border-color:#333;color:#eee}.url-in:focus{border-color:#eee}
-  .sn{background:#eee;color:#111}.copy-btn{background:#eee;color:#111}.copy-btn.ok{background:#16a34a;color:#fff}
-  .conn-btn{background:#eee;color:#111}.divider{border-color:#222}
+.ld-txt{font-size:13px;color:var(--text-muted)}
+
+/* ══ SETUP PAGE ══ */
+#pg-setup{flex-direction:column;justify-content:flex-start;overflow-y:auto}
+.sw-wrap{width:100%;max-width:430px;padding:0 0 40px}
+.sw-hdr{
+  padding:20px 20px 16px;position:sticky;top:0;z-index:1;
+  background:rgba(13,0,32,.8);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  border-bottom:1px solid rgba(255,255,255,0.08);
 }
+.sw-back{font-size:13px;color:var(--text-muted);background:none;border:none;cursor:pointer;font-family:'Outfit',sans-serif;padding:0;margin-bottom:10px;display:block}
+.sw-hdr h1{font-size:20px;font-weight:700;color:#fff}
+.sw-hdr p{font-size:13px;color:var(--text-muted);margin-top:4px;line-height:1.5}
+.sw-body{padding:20px}
+.step{display:flex;gap:14px;margin-bottom:26px}
+.sn{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#a855f7,#6366f1);color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.sb{flex:1}
+.st{font-size:15px;font-weight:700;color:#fff;margin-bottom:6px}
+.sd{font-size:13px;color:var(--text-muted);line-height:1.7;margin-bottom:10px}
+.sd b{color:#fff}
+.sl{display:inline-block;font-size:13px;color:#fff;background:linear-gradient(135deg,#a855f7,#6366f1);padding:9px 18px;border-radius:10px;text-decoration:none;margin-bottom:10px}
+.code-box{background:rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:12px 14px;margin-bottom:10px}
+.code-box pre{font-size:10.5px;font-family:'Courier New',monospace;color:#c4b5fd;white-space:pre-wrap;word-break:break-all;max-height:130px;overflow-y:auto;line-height:1.65}
+.copy-btn{display:block;width:100%;font-size:14px;font-weight:700;padding:11px;background:linear-gradient(135deg,#a855f7,#6366f1);color:#fff;border:none;border-radius:10px;cursor:pointer;font-family:'Outfit',sans-serif;margin-bottom:16px;transition:all .2s}
+.copy-btn.ok{background:linear-gradient(135deg,#22c55e,#16a34a)}
+.info-box{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:12px 14px;font-size:12px;color:var(--text-muted);line-height:1.85;margin-bottom:10px;border-left:3px solid rgba(168,85,247,0.5)}
+.info-box b{color:#fff}
+.url-in{width:100%;font-size:13px;font-family:'Outfit',sans-serif;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:13px 14px;outline:none;color:#fff;margin-bottom:10px;transition:all .2s}
+.url-in:focus{border-color:rgba(168,85,247,0.5);box-shadow:0 0 0 2px rgba(168,85,247,0.12)}
+.url-in::placeholder{color:var(--text-dim)}
+.conn-btn{display:block;width:100%;font-size:15px;font-weight:700;padding:14px;background:linear-gradient(135deg,#a855f7,#6366f1);color:#fff;border:none;border-radius:14px;cursor:pointer;font-family:'Outfit',sans-serif;transition:all .2s;box-shadow:0 4px 20px rgba(168,85,247,0.3)}
+.conn-btn:active{opacity:.8}
+.err-txt{color:var(--red);font-size:12px;margin-top:8px;display:none}
+
+/* scrollbar */
+::-webkit-scrollbar{width:0;background:transparent}
 </style>
 </head>
 <body>
 
-<!-- SETUP WIZARD -->
-<div id="pg-setup">
-  <div class="sw-hdr">
-    <h1>⚙️ Setup Dompet Keluarga</h1>
-    <p>Ikuti 5 langkah berikut untuk menyambungkan Dompet Keluarga ke Google Sheets kamu</p>
-  </div>
-  <div class="sw-body">
+<!-- ANIMATED BACKGROUND -->
+<div class="bg">
+  <div class="blob b1"></div>
+  <div class="blob b2"></div>
+  <div class="blob b3"></div>
+  <div class="blob b4"></div>
+</div>
 
-    <div class="step">
-      <div class="sn">1</div>
-      <div class="sb">
-        <div class="st">Buat Google Sheet baru</div>
-        <div class="sd">Klik tombol di bawah. Login dengan akun Google kamu jika diminta.</div>
-        <a class="sl" href="https://sheets.new" target="_blank">Buka Google Sheets →</a>
-        <div class="info-box">📋 Beri nama bebas, misalnya <b>"Moni Keuangan"</b>. Biarkan isinya kosong.</div>
+<!-- ══════════════════ 1. WELCOME ══════════════════ -->
+<div class="page" id="pg-welcome">
+  <div class="wlc-inner">
+    <div class="wlc-top">
+      <span class="wlc-icon">👨‍👩‍👧‍👦</span>
+      <div class="wlc-title">Dompet<br>Keluarga</div>
+      <div class="wlc-sub">Kelola keuangan keluarga dengan bijak</div>
+      <div class="wlc-quote">
+        <div class="wlc-quote-text">"Pandai - pandailah berhemat agar kamu menjadi orang kaya"</div>
+        <div class="wlc-quote-attr">— Bijak dalam mengelola keuangan</div>
       </div>
     </div>
-
-    <div class="step">
-      <div class="sn">2</div>
-      <div class="sb">
-        <div class="st">Buka Apps Script</div>
-        <div class="sd">Di Google Sheets yang baru dibuka, klik:<br><b>Extensions → Apps Script</b><br>Tab baru editor kode akan terbuka.</div>
-        <div class="info-box">🔧 Hapus semua kode yang ada di editor (biasanya <b>function myFunction(){}</b>), ganti dengan kode di langkah 3.</div>
-      </div>
+    <div class="wlc-btns">
+      <button class="btn-main" onclick="showPage('register')">➕ &nbsp;Tambah Anggota</button>
+      <button class="btn-sec" onclick="showPage('login')">🔐 &nbsp;Masuk</button>
+      <button class="wlc-setup" onclick="showPage('setup')">⚙️ Pengaturan Google Sheets</button>
     </div>
-
-    <div class="step">
-      <div class="sn">3</div>
-      <div class="sb">
-        <div class="st">Salin & paste kode ini ke editor</div>
-        <div class="code-box"><pre id="gs-code-el"></pre></div>
-        <button class="copy-btn" id="copy-btn" onclick="copyCode()">📋 Salin Kode Apps Script</button>
-      </div>
-    </div>
-
-    <div class="step">
-      <div class="sn">4</div>
-      <div class="sb">
-        <div class="st">Simpan lalu Deploy</div>
-        <div class="info-box">
-          1. Tekan <b>Ctrl+S</b> untuk simpan<br>
-          2. Klik tombol <b>Deploy</b> → <b>New deployment</b><br>
-          3. Klik ikon ⚙️ → pilih <b>Web app</b><br>
-          4. <b>Execute as:</b> pilih <b>Me</b><br>
-          5. <b>Who has access:</b> pilih <b>Anyone</b><br>
-          6. Klik <b>Deploy</b><br>
-          7. Klik <b>Authorize access</b> → pilih akun Google → <b>Allow</b><br>
-          8. <b>Salin URL</b> yang muncul (dimulai https://script.google.com...)
-        </div>
-      </div>
-    </div>
-
-    <div class="step">
-      <div class="sn">5</div>
-      <div class="sb">
-        <div class="st">Paste URL Apps Script di sini</div>
-        <div class="sd">Paste URL yang tadi disalin dari langkah 4:</div>
-        <input class="url-in" type="url" id="url-in" placeholder="https://script.google.com/macros/s/..."/>
-        <button class="conn-btn" onclick="connectSheet()">Hubungkan ke Google Sheets →</button>
-        <p class="err-txt" id="err-txt"></p>
-      </div>
-    </div>
-
   </div>
 </div>
 
-<!-- MAIN APP -->
-<div class="app" id="pg-app" style="display:none">
-  <div class="hdr">
-    <span class="hdr-logo">Dompet Keluarga</span>
-    <span class="hdr-sub" id="hm"></span>
-    <button class="hdr-btn" onclick="resetApp()">⚙️ Reset</button>
-  </div>
-  <div class="body">
-    <div class="tab on" id="tc">
-      <div class="scroll msgs" id="ml"></div>
-      <div class="sync-bar" id="sb"></div>
-      <div class="ci-bar">
-        <input type="text" id="ci" placeholder='cth: beli makan 25rb...' onkeydown="if(event.key==='Enter')sm()"/>
-        <button onclick="sm()">Kirim</button>
-      </div>
+<!-- ══════════════════ 2. REGISTER ══════════════════ -->
+<div class="page" id="pg-register">
+  <div class="auth-wrap">
+    <button class="auth-back" onclick="showPage('welcome')">← Kembali</button>
+    <div class="auth-logo">WYZ Money</div>
+    <div class="auth-title">Tambah Anggota</div>
+    <div class="auth-desc">Buat akun untuk anggota keluarga baru. Gunakan nama & kode kunci yang sama di semua perangkat.</div>
+    <label class="auth-label">NAMA ANGGOTA</label>
+    <input class="auth-input" type="text" id="reg-name" placeholder="cth: Ayah, Ibu, Budi..." autocomplete="off" autocorrect="off" spellcheck="false"/>
+    <div class="pin-step" id="reg-pin-step">Buat kode kunci 4 angka</div>
+    <div class="pin-dots">
+      <div class="pin-dot" id="rd0"></div>
+      <div class="pin-dot" id="rd1"></div>
+      <div class="pin-dot" id="rd2"></div>
+      <div class="pin-dot" id="rd3"></div>
     </div>
-    <div class="tab" id="td"><div class="scroll" id="dc"></div></div>
-    <div class="tab" id="th"><div class="scroll" id="hc"></div></div>
+    <div class="numpad">
+      <button class="nk" onclick="regPad(1)">1</button><button class="nk" onclick="regPad(2)">2</button><button class="nk" onclick="regPad(3)">3</button>
+      <button class="nk" onclick="regPad(4)">4</button><button class="nk" onclick="regPad(5)">5</button><button class="nk" onclick="regPad(6)">6</button>
+      <button class="nk" onclick="regPad(7)">7</button><button class="nk" onclick="regPad(8)">8</button><button class="nk" onclick="regPad(9)">9</button>
+      <button class="nk empty"></button><button class="nk" onclick="regPad(0)">0</button><button class="nk del" onclick="regPad('del')">⌫</button>
+    </div>
+    <p class="auth-err" id="reg-err"></p>
+    <button class="auth-btn" onclick="doRegister()">Buat Akun →</button>
+    <p class="auth-note">Kode kunci tidak bisa dipulihkan jika lupa. Catat di tempat yang aman.</p>
   </div>
-  <div class="nav">
-    <button class="on" id="nb-c" onclick="showTab('chat')">💬 Chat</button>
-    <button id="nb-d" onclick="showTab('dash')">📊 Dashboard</button>
-    <button id="nb-h" onclick="showTab('hist')">🗒 Riwayat</button>
+</div>
+
+<!-- ══════════════════ 3. LOGIN ══════════════════ -->
+<div class="page" id="pg-login">
+  <div class="auth-wrap">
+    <button class="auth-back" onclick="showPage('welcome')">← Kembali</button>
+    <div class="auth-logo">WYZ Money</div>
+    <div class="auth-title">Masuk</div>
+    <div class="auth-desc">Masukkan nama & kode kunci untuk mengakses catatan keuanganmu.</div>
+    <label class="auth-label">NAMA</label>
+    <input class="auth-input" type="text" id="login-name" placeholder="cth: Ayah, Ibu, Budi..." autocomplete="off" autocorrect="off" spellcheck="false"/>
+    <div class="pin-step">Masukkan kode kunci 4 angka</div>
+    <div class="pin-dots">
+      <div class="pin-dot" id="ld0"></div><div class="pin-dot" id="ld1"></div>
+      <div class="pin-dot" id="ld2"></div><div class="pin-dot" id="ld3"></div>
+    </div>
+    <div class="numpad">
+      <button class="nk" onclick="loginPad(1)">1</button><button class="nk" onclick="loginPad(2)">2</button><button class="nk" onclick="loginPad(3)">3</button>
+      <button class="nk" onclick="loginPad(4)">4</button><button class="nk" onclick="loginPad(5)">5</button><button class="nk" onclick="loginPad(6)">6</button>
+      <button class="nk" onclick="loginPad(7)">7</button><button class="nk" onclick="loginPad(8)">8</button><button class="nk" onclick="loginPad(9)">9</button>
+      <button class="nk empty"></button><button class="nk" onclick="loginPad(0)">0</button><button class="nk del" onclick="loginPad('del')">⌫</button>
+    </div>
+    <p class="auth-err" id="login-err"></p>
+    <button class="auth-btn" onclick="doLogin()">Masuk →</button>
   </div>
-  <div class="ld-overlay" id="ld" style="display:none">
-    <div class="spinner"></div>
-    <div class="ld-txt" id="ld-txt">Memuat data...</div>
+</div>
+
+<!-- ══════════════════ 4. MAIN APP ══════════════════ -->
+<div class="page" id="pg-app" style="display:none;align-items:stretch;justify-content:flex-start;overflow:hidden">
+  <div class="app-shell">
+    <div class="hdr">
+      <span class="hdr-logo">WYZ Money</span>
+      <span class="hdr-user" id="hdr-user"></span>
+      <span class="hdr-month" id="hm"></span>
+      <button class="hdr-out" onclick="doLogout()">Keluar</button>
+    </div>
+    <div class="body">
+      <div class="tab on" id="tc">
+        <div class="scroll msgs" id="ml"></div>
+        <div class="sync-bar" id="sb"></div>
+        <div class="ci-bar">
+          <input type="text" id="ci" placeholder="cth: beli makan 25rb..." onkeydown="if(event.key==='Enter')sm()"/>
+          <button onclick="sm()">Kirim</button>
+        </div>
+      </div>
+      <div class="tab" id="td"><div class="scroll" id="dc"></div></div>
+      <div class="tab" id="th"><div class="scroll" id="hc"></div></div>
+    </div>
+    <div class="nav">
+      <button class="on" id="nb-c" onclick="showTab('chat')">💬 Chat</button>
+      <button id="nb-d" onclick="showTab('dash')">📊 Dashboard</button>
+      <button id="nb-h" onclick="showTab('hist')">🗒 Riwayat</button>
+    </div>
+    <div class="ld-overlay" id="ld" style="display:none">
+      <div class="spinner"></div>
+      <div class="ld-txt" id="ld-txt">Memuat data...</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════ 5. SETUP ══════════════════ -->
+<div class="page" id="pg-setup" style="justify-content:flex-start">
+  <div class="sw-wrap">
+    <div class="sw-hdr">
+      <button class="sw-back" onclick="showPage('welcome')">← Kembali</button>
+      <h1>⚙️ Setup WYZ Money</h1>
+      <p>Hubungkan ke Google Sheets agar data tersimpan & sinkron di semua perangkat</p>
+    </div>
+    <div class="sw-body">
+      <div class="step"><div class="sn">1</div><div class="sb"><div class="st">Buat Google Sheet baru</div><div class="sd">Klik tombol di bawah & login dengan akun Google kamu.</div><a class="sl" href="https://sheets.new" target="_blank">Buka Google Sheets →</a><div class="info-box">📋 Beri nama bebas misalnya <b>"WYZ Money"</b>, biarkan isinya kosong.</div></div></div>
+      <div class="step"><div class="sn">2</div><div class="sb"><div class="st">Buka Apps Script</div><div class="sd">Di Google Sheets klik: <b>Extensions → Apps Script</b>. Hapus semua kode yang ada, ganti dengan kode di langkah 3.</div></div></div>
+      <div class="step"><div class="sn">3</div><div class="sb"><div class="st">Salin & paste kode ini</div><div class="code-box"><pre id="gs-code-el"></pre></div><button class="copy-btn" id="copy-btn" onclick="copyCode()">📋 Salin Kode Apps Script</button></div></div>
+      <div class="step"><div class="sn">4</div><div class="sb"><div class="st">Simpan lalu Deploy</div><div class="info-box">1. Tekan <b>Ctrl+S</b><br>2. Klik <b>Deploy → New deployment</b><br>3. Klik ⚙️ → pilih <b>Web app</b><br>4. <b>Execute as: Me</b><br>5. <b>Who has access: Anyone</b><br>6. Klik <b>Deploy → Authorize access → Allow</b><br>7. <b>Salin URL</b> yang muncul</div></div></div>
+      <div class="step"><div class="sn">5</div><div class="sb"><div class="st">Paste URL di sini</div><input class="url-in" type="url" id="url-in" placeholder="https://script.google.com/macros/s/..."/><button class="conn-btn" onclick="connectSheet()">Hubungkan ke Google Sheets →</button><p class="err-txt" id="err-txt"></p></div></div>
+    </div>
   </div>
 </div>
 
 <script>
-const GS = `const SHEET = 'Transaksi';
+/* ══ APPS SCRIPT ══ */
+const GS=`const SHEET='Transaksi';
+function getSheet(){const ss=SpreadsheetApp.getActiveSpreadsheet();let s=ss.getSheetByName(SHEET);if(!s){s=ss.insertSheet(SHEET);s.appendRow(['userId','id','type','amount','desc','category','date']);s.setFrozenRows(1);}return s;}
+function doGet(e){const uid=e.parameter.uid||'';if(!uid)return out({error:'no uid'});const s=getSheet();const d=s.getDataRange().getValues();if(d.length<2)return out([]);const h=d[0];const rows=d.slice(1).map(r=>{const o={};h.forEach((k,i)=>o[k]=r[i]);return o;}).filter(r=>String(r.userId)===uid&&r.id);return out(rows);}
+function doPost(e){try{const p=JSON.parse(e.postData.contents);const uid=p.userId||'';if(!uid)return out({ok:false});const s=getSheet();if(p.action==='add'){const t=p.data;s.appendRow([uid,t.id,t.type,t.amount,t.desc,t.category,t.date]);return out({ok:true});}if(p.action==='delete'){const v=s.getDataRange().getValues();for(let i=1;i<v.length;i++){if(String(v[i][0])===uid&&String(v[i][1])===String(p.id)){s.deleteRow(i+1);return out({ok:true});}}}}catch(err){return out({ok:false,err:err.toString()});}return out({ok:false});}
+function out(data){return ContentService.createTextOutput(JSON.stringify(data)).setMimeType(ContentService.MimeType.JSON);}`;
 
-function getSheet() {
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
-  let s = ss.getSheetByName(SHEET);
-  if (!s) {
-    s = ss.insertSheet(SHEET);
-    s.appendRow(['id','type','amount','desc','category','date']);
-    s.setFrozenRows(1);
-  }
-  return s;
+document.getElementById('gs-code-el').textContent=GS;
+
+function copyCode(){
+  const copy=t=>{const ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);};
+  (navigator.clipboard?navigator.clipboard.writeText(GS):Promise.resolve(copy(GS))).catch(()=>copy(GS));
+  const b=document.getElementById('copy-btn');b.textContent='✅ Tersalin!';b.classList.add('ok');
+  setTimeout(()=>{b.textContent='📋 Salin Kode Apps Script';b.classList.remove('ok');},2500);
 }
 
-function doGet() {
-  const s = getSheet();
-  const d = s.getDataRange().getValues();
-  if (d.length < 2) return out([]);
-  const h = d[0];
-  const rows = d.slice(1)
-    .map(r => { const o={}; h.forEach((k,i)=>o[k]=r[i]); return o; })
-    .filter(r => r.id);
-  return out(rows);
-}
+/* ══ STATE ══ */
+const UK='wyz_url',SK='wyz_sess';
+let URL_='',userId='',userName='',txs=[],pc=null,bc=null,regPin='',regPin2='',regStep=1,loginPin='';
 
-function doPost(e) {
-  try {
-    const p = JSON.parse(e.postData.contents);
-    const s = getSheet();
-    if (p.action === 'add') {
-      const t = p.data;
-      s.appendRow([t.id,t.type,t.amount,t.desc,t.category,t.date]);
-      return out({ok:true});
-    }
-    if (p.action === 'delete') {
-      const v = s.getDataRange().getValues();
-      for (let i=1;i<v.length;i++) {
-        if (String(v[i][0])===String(p.id)) { s.deleteRow(i+1); return out({ok:true}); }
-      }
-    }
-  } catch(err) { return out({ok:false,err:err.toString()}); }
-  return out({ok:false});
-}
-
-function out(data) {
-  return ContentService.createTextOutput(JSON.stringify(data)).setMimeType(ContentService.MimeType.JSON);
-}`;
-
-document.getElementById('gs-code-el').textContent = GS;
-
-function copyCode() {
-  navigator.clipboard.writeText(GS).then(() => {
-    const b = document.getElementById('copy-btn');
-    b.textContent = '✅ Tersalin!'; b.classList.add('ok');
-    setTimeout(()=>{ b.textContent='📋 Salin Kode Apps Script'; b.classList.remove('ok'); }, 2500);
-  }).catch(()=>{
-    const ta = document.createElement('textarea');
-    ta.value = GS; document.body.appendChild(ta); ta.select();
-    document.execCommand('copy'); document.body.removeChild(ta);
-    const b = document.getElementById('copy-btn');
-    b.textContent = '✅ Tersalin!'; b.classList.add('ok');
-    setTimeout(()=>{ b.textContent='📋 Salin Kode Apps Script'; b.classList.remove('ok'); }, 2500);
-  });
-}
-
-const UK = 'moni_url', CK = 'moni_cache';
-let URL_ = '', txs = [], pc = null, bc = null;
-
-const CATS = {
-  expense:{ 'Makanan':{ic:'🍜',col:'#E24B4A'},'Transportasi':{ic:'🚗',col:'#EF9F27'},'Belanja':{ic:'🛍️',col:'#7F77DD'},'Hiburan':{ic:'🎮',col:'#378ADD'},'Kesehatan':{ic:'💊',col:'#1D9E75'},'Tagihan':{ic:'📄',col:'#639922'},'Lainnya':{ic:'📦',col:'#888780'} },
-  income:{ 'Gaji':{ic:'💼',col:'#1D9E75'},'Freelance':{ic:'💻',col:'#378ADD'},'Bisnis':{ic:'🏪',col:'#EF9F27'},'Transfer':{ic:'💸',col:'#7F77DD'},'Lainnya':{ic:'✨',col:'#888780'} }
+const CATS={
+  expense:{'Makanan':{ic:'🍜',col:'#f87171'},'Transportasi':{ic:'🚗',col:'#fb923c'},'Belanja':{ic:'🛍️',col:'#c084fc'},'Hiburan':{ic:'🎮',col:'#60a5fa'},'Kesehatan':{ic:'💊',col:'#4ade80'},'Tagihan':{ic:'📄',col:'#facc15'},'Lainnya':{ic:'📦',col:'#94a3b8'}},
+  income:{'Gaji':{ic:'💼',col:'#4ade80'},'Freelance':{ic:'💻',col:'#60a5fa'},'Bisnis':{ic:'🏪',col:'#fbbf24'},'Transfer':{ic:'💸',col:'#c084fc'},'Lainnya':{ic:'✨',col:'#94a3b8'}}
 };
 
-function parseAmt(t){
-  t=t.toLowerCase(); let m;
-  m=t.match(/(\d+(?:[.,]\d+)?)\s*(?:juta|jt)/); if(m)return Math.round(parseFloat(m[1].replace(',','.'))*1e6);
-  m=t.match(/(\d+(?:[.,]\d+)?)\s*(?:ribu|rb|k)/); if(m)return Math.round(parseFloat(m[1].replace(',','.'))*1e3);
-  m=t.match(/rp\.?\s*(\d[\d.,]*)/); if(m)return parseInt(m[1].replace(/[.,]/g,''));
-  m=t.match(/(\d{5,})/); if(m)return parseInt(m[1]);
-  return null;
+/* ══ ROUTING ══ */
+function showPage(name){
+  document.querySelectorAll('.page').forEach(p=>{p.classList.remove('on');p.style.display='';});
+  const pg=document.getElementById('pg-'+name);
+  if(name==='app'){pg.style.display='flex';}
+  pg.classList.add('on');
+  if(name==='register'){regPin='';regPin2='';regStep=1;updateRegDots();document.getElementById('reg-err').textContent='';document.getElementById('reg-pin-step').textContent='Buat kode kunci 4 angka';}
+  if(name==='login'){loginPin='';updateLoginDots();document.getElementById('login-err').textContent='';}
 }
-function detectType(t){
-  t=t.toLowerCase();
-  for(const w of ['terima','dapat','masuk','gaji','bayaran','honor','bonus','untung','jual','pemasukan','dapet','nerima']) if(t.includes(w))return 'income';
-  return 'expense';
-}
-function detectCat(t,tp){
-  t=t.toLowerCase();
-  if(tp==='income'){
-    if(/gaji|salary/.test(t))return 'Gaji'; if(/freelance|project|klien/.test(t))return 'Freelance';
-    if(/bisnis|jualan|jual/.test(t))return 'Bisnis'; if(/transfer|kirim/.test(t))return 'Transfer'; return 'Lainnya';
-  }
-  if(/makan|minum|kopi|nasi|ayam|bakso|mie|sate|pizza|burger|cafe|warung|jajan|snack|boba|sushi|resto|indomie/.test(t))return 'Makanan';
-  if(/bensin|parkir|ojek|gojek|grab|taxi|bus|angkot|kereta|tol|bbm|motor|mobil/.test(t))return 'Transportasi';
-  if(/baju|sepatu|tas|belanja|shopee|tokopedia|lazada|toko|market/.test(t))return 'Belanja';
-  if(/game|nonton|film|bioskop|netflix|spotify|youtube|hiburan/.test(t))return 'Hiburan';
-  if(/obat|dokter|klinik|apotek|vitamin/.test(t))return 'Kesehatan';
-  if(/listrik|air|internet|wifi|pulsa|token|tagihan|iuran|sewa/.test(t))return 'Tagihan';
-  return 'Lainnya';
-}
-function parseTx(raw){
-  const amt=parseAmt(raw); if(!amt||amt<100)return null;
-  const tp=detectType(raw),cat=detectCat(raw,tp);
-  return{id:Date.now()+'_'+Math.random().toString(36).slice(2),type:tp,amount:amt,desc:raw.trim(),category:cat,date:new Date().toISOString()};
-}
-function fmtRp(n){
-  if(n>=1e9)return'Rp '+(n/1e9).toFixed(1).replace('.0','')+' M';
-  if(n>=1e6)return'Rp '+(n/1e6).toFixed(1).replace('.0','')+' jt';
-  if(n>=1e3)return'Rp '+(n/1e3).toFixed(0)+' rb';
-  return'Rp '+n;
-}
-function fmtFull(n){return'Rp '+n.toLocaleString('id-ID');}
 
-function sync(m){document.getElementById('sb').textContent=m;}
-function showLd(t){document.getElementById('ld-txt').textContent=t||'Memuat...';document.getElementById('ld').style.display='flex';}
-function hideLd(){document.getElementById('ld').style.display='none';}
-function cacheSet(){try{localStorage.setItem(CK,JSON.stringify(txs));}catch(e){}}
-function cacheGet(){try{const d=localStorage.getItem(CK);if(d)txs=JSON.parse(d);}catch(e){}}
-
-async function apiGet(){const r=await fetch(URL_,{method:'GET',redirect:'follow'});return r.json();}
-async function apiPost(b){await fetch(URL_,{method:'POST',body:JSON.stringify(b),headers:{'Content-Type':'text/plain'},redirect:'follow'});}
-
-async function connectSheet(){
+/* ══ SETUP ══ */
+function connectSheet(){
   const u=document.getElementById('url-in').value.trim();
   const err=document.getElementById('err-txt');
-  if(!u.startsWith('https://script.google.com')){err.textContent='URL tidak valid. Harus dimulai dengan https://script.google.com...';err.style.display='block';return;}
-  localStorage.setItem(UK,u); URL_=u;
-  document.getElementById('pg-setup').style.display='none';
-  document.getElementById('pg-app').style.display='flex';
-  await initApp();
+  if(!u.startsWith('https://script.google.com')){err.textContent='URL tidak valid.';err.style.display='block';return;}
+  localStorage.setItem(UK,u);URL_=u;showPage('welcome');
 }
 
-function resetApp(){
-  if(!confirm('Reset koneksi Google Sheets?'))return;
-  localStorage.removeItem(UK);localStorage.removeItem(CK);location.reload();
-}
+/* ══ PIN ══ */
+function updateRegDots(){const pin=regStep===1?regPin:regPin2;for(let i=0;i<4;i++)document.getElementById('rd'+i).classList.toggle('on',i<pin.length);}
+function updateLoginDots(){for(let i=0;i<4;i++)document.getElementById('ld'+i).classList.toggle('on',i<loginPin.length);}
 
-function addMsg(from,text){
-  const el=document.createElement('div');
-  el.className=from==='bot'?'bbl':'bbu';el.textContent=text;
-  const ml=document.getElementById('ml');ml.appendChild(el);
-  el.scrollIntoView({behavior:'smooth',block:'end'});
-}
-
-function initChat(){
-  document.getElementById('ml').innerHTML='';
-  addMsg('bot','Halo! Selamat datang di Dompet Keluarga 👋\n\nData kamu tersimpan di Google Sheets & sinkron di semua perangkat!\n\nCara input transaksi:\n• "beli makan siang 25rb"\n• "gaji masuk 5jt"\n• "bayar listrik 150rb"\n• "grab ke kantor 18rb"');
-}
-
-async function initApp(){
-  document.getElementById('hm').textContent=new Date().toLocaleDateString('id-ID',{month:'long',year:'numeric'});
-  initChat();
-  showLd('Mengambil data dari Google Sheets...');
-  try{
-    const data=await apiGet();
-    if(Array.isArray(data)){
-      txs=data.map(r=>({id:String(r.id),type:r.type,amount:Number(r.amount),desc:r.desc,category:r.category,date:r.date}))
-              .sort((a,b)=>new Date(b.date)-new Date(a.date));
-      cacheSet();
+function regPad(v){
+  const err=document.getElementById('reg-err');err.textContent='';
+  if(v==='del'){if(regStep===1)regPin=regPin.slice(0,-1);else regPin2=regPin2.slice(0,-1);updateRegDots();return;}
+  if(regStep===1){
+    if(regPin.length>=4)return;regPin+=v;updateRegDots();
+    if(regPin.length===4)setTimeout(()=>{regStep=2;regPin2='';updateRegDots();document.getElementById('reg-pin-step').textContent='Konfirmasi kode kunci';},300);
+  }else{
+    if(regPin2.length>=4)return;regPin2+=v;updateRegDots();
+    if(regPin2.length===4&&regPin!==regPin2){
+      err.textContent='Kode kunci tidak cocok. Coba lagi.';
+      setTimeout(()=>{regStep=1;regPin='';regPin2='';updateRegDots();document.getElementById('reg-pin-step').textContent='Buat kode kunci 4 angka';},800);
     }
-  }catch(e){
-    cacheGet();
-    addMsg('bot','⚠️ Tidak bisa terhubung ke Google Sheets.\nMenampilkan data dari cache terakhir.\n\nCek koneksi internet kamu.');
   }
+}
+function loginPad(v){
+  document.getElementById('login-err').textContent='';
+  if(v==='del'){loginPin=loginPin.slice(0,-1);updateLoginDots();return;}
+  if(loginPin.length>=4)return;loginPin+=v;updateLoginDots();
+}
+
+/* ══ HASH ══ */
+async function makeUserId(name,pin){
+  const msg=name.trim().toLowerCase()+':'+pin;
+  const buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(msg));
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('').slice(0,24);
+}
+
+/* ══ AUTH ══ */
+async function doRegister(){
+  const name=document.getElementById('reg-name').value.trim();
+  const err=document.getElementById('reg-err');
+  if(!name){err.textContent='Masukkan nama anggota';return;}
+  if(regPin.length<4){err.textContent='Masukkan kode kunci 4 angka';return;}
+  if(regPin2.length<4){err.textContent='Konfirmasi kode kunci terlebih dahulu';return;}
+  if(regPin!==regPin2){err.textContent='Kode kunci tidak cocok';return;}
+  userId=await makeUserId(name,regPin);userName=name;
+  sessionStorage.setItem(SK,JSON.stringify({userId,userName}));
+  await openApp();
+}
+async function doLogin(){
+  const name=document.getElementById('login-name').value.trim();
+  const err=document.getElementById('login-err');
+  if(!name){err.textContent='Masukkan nama kamu';return;}
+  if(loginPin.length<4){err.textContent='Masukkan kode kunci 4 angka';return;}
+  userId=await makeUserId(name,loginPin);userName=name;
+  sessionStorage.setItem(SK,JSON.stringify({userId,userName}));
+  await openApp();
+}
+function doLogout(){
+  if(!confirm('Yakin ingin keluar?'))return;
+  sessionStorage.removeItem(SK);userId='';userName='';txs=[];showPage('welcome');
+}
+
+/* ══ OPEN APP ══ */
+async function openApp(){
+  showPage('app');
+  document.getElementById('hdr-user').textContent=userName;
+  document.getElementById('hm').textContent=new Date().toLocaleDateString('id-ID',{month:'short',year:'numeric'});
+  initChat();showLd('Mengambil data dari Google Sheets...');
+  try{
+    const r=await fetch(`${URL_}?uid=${userId}`,{method:'GET',redirect:'follow'});
+    const data=await r.json();
+    if(Array.isArray(data)){txs=data.map(row=>({id:String(row.id),type:row.type,amount:Number(row.amount),desc:row.desc,category:row.category,date:row.date})).sort((a,b)=>new Date(b.date)-new Date(a.date));}
+  }catch(e){addMsg('bot','⚠️ Tidak bisa terhubung ke Google Sheets.\nPastikan koneksi internet aktif.');}
   hideLd();
 }
+async function apiPost(b){await fetch(URL_,{method:'POST',body:JSON.stringify({...b,userId}),headers:{'Content-Type':'text/plain'},redirect:'follow'});}
+
+/* ══ HELPERS ══ */
+function showLd(t){document.getElementById('ld-txt').textContent=t||'Memuat...';document.getElementById('ld').style.display='flex';}
+function hideLd(){document.getElementById('ld').style.display='none';}
+function sync(m){document.getElementById('sb').textContent=m;}
+function addMsg(from,text){
+  const el=document.createElement('div');el.className=from==='bot'?'bbl':'bbu';el.textContent=text;
+  const ml=document.getElementById('ml');ml.appendChild(el);el.scrollIntoView({behavior:'smooth',block:'end'});
+}
+function initChat(){
+  document.getElementById('ml').innerHTML='';
+  addMsg('bot',`Halo, ${userName}! ✨\n\nData kamu tersimpan di Google Sheets & terlindungi kode kunci.\n\nCara input transaksi:\n• "beli makan siang 25rb"\n• "gaji masuk 5jt"\n• "bayar listrik 150rb"\n• "grab ke kantor 18rb"`);
+}
+
+/* ══ PARSER ══ */
+function parseAmt(t){
+  t=t.toLowerCase();let m;
+  m=t.match(/(\d+(?:[.,]\d+)?)\s*(?:juta|jt)/);if(m)return Math.round(parseFloat(m[1].replace(',','.'))*1e6);
+  m=t.match(/(\d+(?:[.,]\d+)?)\s*(?:ribu|rb|k)/);if(m)return Math.round(parseFloat(m[1].replace(',','.'))*1e3);
+  m=t.match(/rp\.?\s*(\d[\d.,]*)/);if(m)return parseInt(m[1].replace(/[.,]/g,''));
+  m=t.match(/(\d{5,})/);if(m)return parseInt(m[1]);
+  return null;
+}
+function detectType(t){t=t.toLowerCase();for(const w of['terima','dapat','masuk','gaji','bayaran','honor','bonus','untung','jual','pemasukan','dapet','nerima'])if(t.includes(w))return'income';return'expense';}
+function detectCat(t,tp){
+  t=t.toLowerCase();
+  if(tp==='income'){if(/gaji|salary/.test(t))return'Gaji';if(/freelance|project|klien/.test(t))return'Freelance';if(/bisnis|jualan|jual/.test(t))return'Bisnis';if(/transfer|kirim/.test(t))return'Transfer';return'Lainnya';}
+  if(/makan|minum|kopi|nasi|ayam|bakso|mie|sate|pizza|burger|cafe|warung|jajan|snack|boba|sushi|resto|indomie/.test(t))return'Makanan';
+  if(/bensin|parkir|ojek|gojek|grab|taxi|bus|angkot|kereta|tol|bbm|motor|mobil/.test(t))return'Transportasi';
+  if(/baju|sepatu|tas|belanja|shopee|tokopedia|lazada|toko|market/.test(t))return'Belanja';
+  if(/game|nonton|film|bioskop|netflix|spotify|youtube|hiburan/.test(t))return'Hiburan';
+  if(/obat|dokter|klinik|apotek|vitamin/.test(t))return'Kesehatan';
+  if(/listrik|air|internet|wifi|pulsa|token|tagihan|iuran|sewa/.test(t))return'Tagihan';
+  return'Lainnya';
+}
+function parseTx(raw){const amt=parseAmt(raw);if(!amt||amt<100)return null;const tp=detectType(raw),cat=detectCat(raw,tp);return{id:Date.now()+'_'+Math.random().toString(36).slice(2),type:tp,amount:amt,desc:raw.trim(),category:cat,date:new Date().toISOString()};}
+function fmtRp(n){if(n>=1e9)return'Rp '+(n/1e9).toFixed(1).replace('.0','')+' M';if(n>=1e6)return'Rp '+(n/1e6).toFixed(1).replace('.0','')+' jt';if(n>=1e3)return'Rp '+(n/1e3).toFixed(0)+' rb';return'Rp '+n;}
+function fmtFull(n){return'Rp '+n.toLocaleString('id-ID');}
 
 async function sm(){
-  const ci=document.getElementById('ci'),raw=ci.value.trim();
-  if(!raw)return;
+  const ci=document.getElementById('ci'),raw=ci.value.trim();if(!raw)return;
   addMsg('user',raw);ci.value='';
   const tx=parseTx(raw);
-  if(!tx){addMsg('bot','Hmm, belum bisa membacanya. 🤔\nSertakan nominal, contoh:\n"beli kopi 25rb" atau "gaji masuk 5jt"');return;}
-  txs.unshift(tx);cacheSet();
+  if(!tx){addMsg('bot','Hmm, belum bisa membacanya. 🤔\nSertakan nominal, cth:\n"beli kopi 25rb" atau "gaji masuk 5jt"');return;}
+  txs.unshift(tx);
   const cd=CATS[tx.type][tx.category];
   addMsg('bot',`${tx.type==='income'?'✅ Pemasukan dicatat!':'💸 Pengeluaran dicatat!'}\n\n${cd.ic} ${tx.category}\n${fmtFull(tx.amount)}\n${tx.desc}`);
   sync('Menyimpan ke Google Sheets...');
   try{await apiPost({action:'add',data:tx});sync('');}
-  catch(e){sync('⚠️ Gagal simpan. Dicatat lokal.');setTimeout(()=>sync(''),3000);}
+  catch(e){sync('⚠️ Gagal simpan.');setTimeout(()=>sync(''),3000);}
 }
 
 async function delTx(id){
   if(!confirm('Hapus transaksi ini?'))return;
-  txs=txs.filter(t=>t.id!==id);cacheSet();renderHist();
+  txs=txs.filter(t=>t.id!==id);renderHist();
   if(document.getElementById('td').classList.contains('on'))renderDash();
   try{await apiPost({action:'delete',id});}catch(e){}
 }
 
+/* ══ DASHBOARD ══ */
 function renderDash(){
   const dc=document.getElementById('dc'),now=new Date();
   const mo=txs.filter(t=>{const d=new Date(t.date);return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();});
   const inc=mo.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0);
   const exp=mo.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amount,0);
   const bal=inc-exp;
-  const expCat={};
-  mo.filter(t=>t.type==='expense').forEach(t=>expCat[t.category]=(expCat[t.category]||0)+t.amount);
+  const expCat={};mo.filter(t=>t.type==='expense').forEach(t=>expCat[t.category]=(expCat[t.category]||0)+t.amount);
   const pie=Object.entries(expCat).sort((a,b)=>b[1]-a[1]);
   const bar=Array.from({length:7},(_,i)=>{
     const d=new Date(now);d.setDate(d.getDate()-(6-i));const ds=d.toDateString();
@@ -411,7 +605,7 @@ function renderDash(){
     return{day:d.toLocaleDateString('id-ID',{weekday:'short'}),inc:dt.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0)/1000,exp:dt.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amount,0)/1000};
   });
   dc.innerHTML=`
-    <div class="stl">RINGKASAN BULAN INI</div>
+    <div class="stl">RINGKASAN BULAN INI — ${userName.toUpperCase()}</div>
     <div class="mc-grid" style="margin-bottom:8px">
       <div class="mc"><div class="mc-lbl">Saldo</div><div class="mc-val ${bal>=0?'pos':'neg'}">${bal<0?'-':''}${fmtRp(Math.abs(bal))}</div></div>
       <div class="mc"><div class="mc-lbl">Transaksi</div><div class="mc-val">${mo.length}</div></div>
@@ -427,30 +621,20 @@ function renderDash(){
     :`<div class="emp">Belum ada pengeluaran bulan ini.</div>`}
     <div class="stl">AKTIVITAS 7 HARI TERAKHIR</div>
     <div class="leg-wrap">
-      <span class="leg"><span class="leg-d" style="background:#1D9E75"></span>Pemasukan (rb)</span>
-      <span class="leg"><span class="leg-d" style="background:#E24B4A"></span>Pengeluaran (rb)</span>
+      <span class="leg"><span class="leg-d" style="background:#4ade80"></span>Pemasukan (rb)</span>
+      <span class="leg"><span class="leg-d" style="background:#f87171"></span>Pengeluaran (rb)</span>
     </div>
     <div style="position:relative;height:160px;margin-bottom:24px"><canvas id="bar-c" role="img" aria-label="Bar chart 7 hari"></canvas></div>`;
-  if(pc){pc.destroy();pc=null;} if(bc){bc.destroy();bc=null;}
-  if(pie.length>0){
-    pc=new Chart(document.getElementById('pie-c'),{
-      type:'doughnut',
-      data:{labels:pie.map(([n])=>n),datasets:[{data:pie.map(([,v])=>v),backgroundColor:pie.map(([n])=>CATS.expense[n]?.col||'#888'),borderWidth:3,borderColor:'#fff'}]},
-      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>' '+fmtFull(ctx.raw)}}},cutout:'58%'}
-    });
-  }
-  bc=new Chart(document.getElementById('bar-c'),{
-    type:'bar',
-    data:{labels:bar.map(d=>d.day),datasets:[{label:'Pemasukan',data:bar.map(d=>Math.round(d.inc)),backgroundColor:'#1D9E75'},{label:'Pengeluaran',data:bar.map(d=>Math.round(d.exp)),backgroundColor:'#E24B4A'}]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{font:{size:11}}},y:{grid:{color:'rgba(128,128,128,0.1)'},ticks:{font:{size:11},callback:v=>v+'rb'}}},barPercentage:.65}
-  });
+  if(pc){pc.destroy();pc=null;}if(bc){bc.destroy();bc=null;}
+  if(pie.length>0){pc=new Chart(document.getElementById('pie-c'),{type:'doughnut',data:{labels:pie.map(([n])=>n),datasets:[{data:pie.map(([,v])=>v),backgroundColor:pie.map(([n])=>CATS.expense[n]?.col||'#888'),borderWidth:2,borderColor:'rgba(13,0,32,0.5)'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>' '+fmtFull(ctx.raw)}}},cutout:'58%'}});}
+  bc=new Chart(document.getElementById('bar-c'),{type:'bar',data:{labels:bar.map(d=>d.day),datasets:[{label:'Pemasukan',data:bar.map(d=>Math.round(d.inc)),backgroundColor:'rgba(74,222,128,0.7)'},{label:'Pengeluaran',data:bar.map(d=>Math.round(d.exp)),backgroundColor:'rgba(248,113,113,0.7)'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{color:'rgba(255,255,255,0.05)'},ticks:{color:'rgba(255,255,255,0.4)',font:{size:11,family:'Outfit'}}},y:{grid:{color:'rgba(255,255,255,0.05)'},ticks:{color:'rgba(255,255,255,0.4)',font:{size:11,family:'Outfit'},callback:v=>v+'rb'}}},barPercentage:.65}});
 }
 
+/* ══ HISTORY ══ */
 function renderHist(){
   const hc=document.getElementById('hc');
-  if(!txs.length){hc.innerHTML='<div class="emp">Belum ada transaksi.<br>Mulai catat lewat tab Chat! 💬</div>';return;}
-  const grp={};
-  txs.forEach(t=>{const dk=new Date(t.date).toDateString();if(!grp[dk])grp[dk]=[];grp[dk].push(t);});
+  if(!txs.length){hc.innerHTML=`<div class="emp">Belum ada transaksi untuk ${userName}.<br>Mulai catat lewat tab Chat! 💬</div>`;return;}
+  const grp={};txs.forEach(t=>{const dk=new Date(t.date).toDateString();if(!grp[dk])grp[dk]=[];grp[dk].push(t);});
   let html='';
   Object.entries(grp).forEach(([dk,arr])=>{
     html+=`<div class="stl">${new Date(dk).toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long'})}</div><div>`;
@@ -472,10 +656,14 @@ function showTab(n){
   else{document.getElementById('th').classList.add('on');document.getElementById('nb-h').classList.add('on');renderHist();}
 }
 
-(function boot(){
+/* ══ BOOT ══ */
+(async function boot(){
   const u=localStorage.getItem(UK);
-  if(u&&u.startsWith('https://script.google.com')){URL_=u;document.getElementById('pg-app').style.display='flex';initApp();}
-  else{document.getElementById('pg-setup').style.display='block';}
+  if(!u||!u.startsWith('https://script.google.com')){showPage('setup');return;}
+  URL_=u;
+  const sess=sessionStorage.getItem(SK);
+  if(sess){try{const s=JSON.parse(sess);userId=s.userId;userName=s.userName;await openApp();return;}catch(e){}}
+  showPage('welcome');
 })();
 </script>
 </body>
